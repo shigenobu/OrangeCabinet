@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrangeCabinet", "OrangeCabinet\OrangeCabinet.csproj", "{169427D1-E517-4AF9-93CF-C9B810E7F92B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrangeCabinet.Tests", "OrangeCabinet.Tests\OrangeCabinet.Tests.csproj", "{39C3364A-D8A2-4B68-BBD5-D7A06F3FDB6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{169427D1-E517-4AF9-93CF-C9B810E7F92B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{169427D1-E517-4AF9-93CF-C9B810E7F92B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{169427D1-E517-4AF9-93CF-C9B810E7F92B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39C3364A-D8A2-4B68-BBD5-D7A06F3FDB6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39C3364A-D8A2-4B68-BBD5-D7A06F3FDB6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39C3364A-D8A2-4B68-BBD5-D7A06F3FDB6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39C3364A-D8A2-4B68-BBD5-D7A06F3FDB6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
