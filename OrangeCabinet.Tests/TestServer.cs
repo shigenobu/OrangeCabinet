@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Xunit;
@@ -19,19 +20,22 @@ namespace OrangeCabinet.Tests
         [Fact]
         public void TestForever()
         {
-            var serverBinder1 = new OcBinder(new Callback())
+            var serverBinders = new List<OcBinder>
             {
-                BindPort = 8711
+                new OcBinder(new Callback())
+                {
+                    BindPort = 8711
+                },
+                new OcBinder(new Callback())
+                {
+                    BindPort = 8712
+                },
+                new OcBinder(new Callback())
+                {
+                    BindPort = 871
+                }
             };
-            var serverBinder2 = new OcBinder(new Callback())
-            {
-                BindPort = 8712
-            };
-            var serverBinder3 = new OcBinder(new Callback())
-            {
-                BindPort = 8713
-            };
-            var server = new OcLocal(new[]{serverBinder1, serverBinder2, serverBinder3});
+            var server = new OcLocal(serverBinders);
             server.Start();
             server.WaitFor();
         }

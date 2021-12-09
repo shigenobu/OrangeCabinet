@@ -30,7 +30,11 @@ namespace OrangeCabinet.Tests
             server.Start();
             Task.Run(() =>
             {
-                Thread.Sleep(10000);
+                for (int i = 0; i < 10; i++)
+                {
+                    OcLogger.Info($"Count: {serverBinder.GetRemoteCount()}");
+                    Thread.Sleep(1000);
+                }
                 server.Shutdown();
             });
             
@@ -48,7 +52,7 @@ namespace OrangeCabinet.Tests
                         Divide = 1
                     };
                     var client = new OcRemote(clientBinder, "127.0.0.1", 8710);
-                    OcLogger.Info($"{client.LocalEndpoint} {client.RemoteEndpoint}");
+                    OcLogger.Info($"Local:{client.LocalEndpoint} Remote:{client.RemoteEndpoint}");
                     client.ChangeIdleMilliSeconds(5000);
                     for (int j = 0; j < 3; j++)
                     {

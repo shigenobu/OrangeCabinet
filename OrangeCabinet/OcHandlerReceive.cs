@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace OrangeCabinet
 {
+    /// <summary>
+    ///     Handler receive.
+    /// </summary>
     public class OcHandlerReceive : OcHandler<OcStateReceive>
     {
         /// <summary>
-        ///     Reset event for accept.
+        ///     Reset event for receive.
         /// </summary>
         private readonly ManualResetEventSlim _received = new(false);
 
@@ -38,7 +41,13 @@ namespace OrangeCabinet
         /// </summary>
         internal Task? TaskReceive { get; private set; }
         
-        public OcHandlerReceive(OcCallback callback, int readBufferSize, OcRemoteManager remoteManager)
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="callback">callback</param>
+        /// <param name="readBufferSize">read buffer size</param>
+        /// <param name="remoteManager">remote manager</param>
+        internal OcHandlerReceive(OcCallback callback, int readBufferSize, OcRemoteManager remoteManager)
         {
             _callback = callback;
             _readBufferSize = readBufferSize;
@@ -47,6 +56,10 @@ namespace OrangeCabinet
             _tokenSourceReceive = new CancellationTokenSource();
         }
         
+        /// <summary>
+        ///     Prepare.
+        /// </summary>
+        /// <param name="state">state</param>
         public override void Prepare(OcStateReceive state)
         {
             TaskReceive = Task.Factory.StartNew(() =>
@@ -65,23 +78,16 @@ namespace OrangeCabinet
 
                     try
                     {
-                        // reset buffer
-                        if (state.Buffer == null)
+                        // reset
+                        // Must be reset every time.
+                        state = new OcStateReceive()
                         {
-                            state.Buffer = new byte[_readBufferSize];    
-                        }
-                        else
-                        {
-                            // new
-                            state = new OcStateReceive()
-                            {
-                                Socket = state.Socket,
-                                Buffer = new byte[_readBufferSize]
-                            };
-                        }
-                        
-                        
+                            Socket = state.Socket,
+                            Buffer = new byte[_readBufferSize]
+                        };
+
                         // receive
+                        // 'BeginReceiveFrom' and 'EndReceiveFrom' must be use at same time.
                         EndPoint remoteEndpoint = new IPEndPoint(IPAddress.Any, 0);
                         state.Socket.BeginReceiveFrom(
                             state.Buffer!, 
@@ -104,6 +110,10 @@ namespace OrangeCabinet
             }, _tokenSourceReceive.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
         }
 
+        /// <summary>
+        ///     Complete.
+        /// </summary>
+        /// <param name="result">async result</param>
         public override void Complete(IAsyncResult result)
         {
             // signal on
@@ -147,11 +157,18 @@ namespace OrangeCabinet
             }
         }
 
+        /// <summary>
+        ///     Failed.
+        /// </summary>
+        /// <param name="state">state</param>
         public override void Failed(OcStateReceive state)
         {
             OcLogger.Debug(() => $"Receive failed: {state}");
         }
 
+        /// <summary>
+        ///     Shutdown.
+        /// </summary>
         public override void Shutdown()
         {
             // shutdown receive

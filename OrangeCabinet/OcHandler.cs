@@ -2,6 +2,10 @@ using System;
 
 namespace OrangeCabinet
 {
+    /// <summary>
+    ///     Handler.
+    /// </summary>
+    /// <typeparam name="T">type of state</typeparam>
     public abstract class OcHandler<T> where T : OcState
     {
         /// <summary>
@@ -24,7 +28,7 @@ namespace OrangeCabinet
         public abstract void Prepare(T state);
         
         /// <summary>
-        ///     Complete (Accept, Connect or Read)
+        ///     Complete (receive)
         /// </summary>
         /// <param name="result"></param>
         public abstract void Complete(IAsyncResult result);

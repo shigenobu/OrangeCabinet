@@ -5,16 +5,29 @@ using System.Net.Sockets;
 
 namespace OrangeCabinet
 {
+    /// <summary>
+    ///     Remote.
+    /// </summary>
     public class OcRemote
     {
-        
-        
+        /// <summary>
+        ///     Binder.
+        /// </summary>
         private readonly OcBinder _binder;
 
+        /// <summary>
+        ///     Local endpoint.
+        /// </summary>
         public IPEndPoint LocalEndpoint { get; }
         
+        /// <summary>
+        ///     Remote endpoint.
+        /// </summary>
         public IPEndPoint RemoteEndpoint { get; }
 
+        /// <summary>
+        ///     Remote id.
+        /// </summary>
         private readonly string _rid;
 
         /// <summary>
@@ -27,8 +40,10 @@ namespace OrangeCabinet
         /// </summary>
         private long _lifeTimestampMilliseconds;
 
+        /// <summary>
+        ///     Active.
+        /// </summary>
         internal bool Active { get; set; } = true;
- 
 
         /// <summary>
         ///     Newest.
@@ -40,16 +55,27 @@ namespace OrangeCabinet
         /// </summary>
         private Dictionary<string, object>? _values;
         
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="binder">binder</param>
+        /// <param name="remoteHost">remote host</param>
+        /// <param name="remotePort">remote port</param>
         public OcRemote(OcBinder binder, string remoteHost, int remotePort)
             : this(binder, new IPEndPoint(IPAddress.Parse(remoteHost), remotePort))
         {
         }
 
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="binder">binder</param>
+        /// <param name="remoteEndpoint">remote endpoint</param>
         public OcRemote(OcBinder binder, IPEndPoint remoteEndpoint)
         {
             // bind
             _binder = binder;
-            _binder.Bind();
+            _binder.Bind(OcBindMode.Client);
             LocalEndpoint = (IPEndPoint)_binder.BindSocket!.OxSocketLocalEndPoint()!;
             RemoteEndpoint = remoteEndpoint;
 
@@ -85,6 +111,11 @@ namespace OrangeCabinet
             _lifeTimestampMilliseconds = OcDate.NowTimestampMilliSeconds() + _idleMilliSeconds;
         }
 
+        /// <summary>
+        ///     Send.
+        /// </summary>
+        /// <param name="message">message</param>
+        /// <exception cref="OcSendException">send error</exception>
         public void Send(byte[] message)
         {
             // if escaped, disallow send
@@ -109,6 +140,10 @@ namespace OrangeCabinet
             }
         }
         
+        /// <summary>
+        ///     Escape.
+        ///     It's force to timeout.
+        /// </summary>
         public void Escape() {
             // lifetime is force to set 0
             _lifeTimestampMilliseconds = 0;

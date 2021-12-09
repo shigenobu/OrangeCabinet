@@ -31,7 +31,7 @@ namespace OrangeCabinet
 
         /// <summary>
         ///     Divide.
-        ///     It's remote connections divided number.
+        ///     It's remote divided number.
         /// </summary>
         public int Divide { get; init; } = 10;
         
@@ -45,14 +45,26 @@ namespace OrangeCabinet
         /// </summary>
         private OcRemoteManager? _remoteManager;
 
+        /// <summary>
+        ///     Bind socket.
+        /// </summary>
         internal Socket? BindSocket { get; private set; }
 
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="callback">callback</param>
         public OcBinder(OcCallback callback)
         {
             Callback = callback;
         }
 
-        internal void Bind()
+        /// <summary>
+        ///     Bind.
+        /// </summary>
+        /// <param name="bindMode">bind mode</param>
+        /// <exception cref="OcBinderException">bind exception</exception>
+        internal void Bind(OcBindMode bindMode)
         {
             if (BindSocket != null)
             {
@@ -80,7 +92,7 @@ namespace OrangeCabinet
                 _handlerReceive.Prepare(state);
             
                 // start
-                OcLogger.Info($"Bind on {BindHost}:{BindPort}");
+                OcLogger.Info($"{bindMode} bind on {BindHost}:{BindPort} (readBufferSize:{ReadBufferSize})");
             }
             catch (Exception e)
             {
@@ -89,11 +101,17 @@ namespace OrangeCabinet
             }
         }
 
+        /// <summary>
+        ///     Wait for.
+        /// </summary>
         internal void WaitFor()
         {
             _handlerReceive?.TaskReceive?.Wait();
         }
         
+        /// <summary>
+        ///     Close.
+        /// </summary>
         internal void Close()
         {
             // manager
@@ -107,14 +125,58 @@ namespace OrangeCabinet
             BindSocket = null;
         }
 
+        /// <summary>
+        ///     Dispose.
+        /// </summary>
         public void Dispose()
         {
             Close();
         }
+
+        /// <summary>
+        ///     Get remote count.
+        /// </summary>
+        /// <returns>remote count</returns>
+        public long GetRemoteCount()
+        {
+            return _remoteManager?.GetRemoteCount() ?? 0;
+        }
+
+        /// <summary>
+        ///     To string.
+        /// </summary>
+        /// <returns>local host and port, or empty.</returns>
+        public override string ToString()
+        {
+            return $"Bind socket: {BindSocket?.OxSocketLocalEndPoint()}";
+        }
     }
 
+    /// <summary>
+    ///     Binder mode.
+    /// </summary>
+    internal enum OcBindMode
+    {
+        /// <summary>
+        ///     Server.
+        /// </summary>
+        Server,
+        
+        /// <summary>
+        ///     Client.
+        /// </summary>
+        Client
+    }
+    
+    /// <summary>
+    ///     Bind exception.
+    /// </summary>
     public class OcBinderException : Exception
     {
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="e">exception</param>
         internal OcBinderException(Exception e) : base(e.ToString())
         {}
     }

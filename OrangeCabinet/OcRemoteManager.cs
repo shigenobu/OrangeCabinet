@@ -2,12 +2,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace OrangeCabinet
 {
+    /// <summary>
+    ///     Remote manager.
+    /// </summary>
     public class OcRemoteManager
     {
         /// <summary>
@@ -25,6 +27,11 @@ namespace OrangeCabinet
         /// </summary>
         private readonly List<ConcurrentDictionary<string, OcRemote>> _remotes;
 
+        /// <summary>
+        ///     Divide.
+        /// </summary>
+        private readonly int _divide;
+        
         /// <summary>
         ///     Remote count.
         /// </summary>
@@ -45,26 +52,34 @@ namespace OrangeCabinet
         /// </summary>
         private int _taskNo;
         
+        /// <summary>
+        ///     Constructor.
+        /// </summary>
+        /// <param name="binder">binder</param>
         internal OcRemoteManager(OcBinder binder)
         {
             _binder = binder;
+            _divide = binder.Divide;
             
-            _remoteLocks = new List<object>(_binder.Divide);
-            for (int i = 0; i < _binder.Divide; i++)
+            _remoteLocks = new List<object>(_divide);
+            for (int i = 0; i < _divide; i++)
             {
                 _remoteLocks.Add(new object());
             }
             
-            _remotes = new List<ConcurrentDictionary<string, OcRemote>>(_binder.Divide);
-            for (int i = 0; i < _binder.Divide; i++)
+            _remotes = new List<ConcurrentDictionary<string, OcRemote>>(_divide);
+            for (int i = 0; i < _divide; i++)
             {
                 _remotes.Add(new ConcurrentDictionary<string, OcRemote>());
             }
         }
 
+        /// <summary>
+        ///     Start timeout task.
+        /// </summary>
         internal void StartTimeoutTask()
         {
-            var delay = 1000 / _binder.Divide;
+            var delay = 1000 / _divide;
             _tokenSourceTimeout = new CancellationTokenSource();
             _taskTimeout = Task.Factory.StartNew(async () =>
             {
@@ -82,7 +97,7 @@ namespace OrangeCabinet
                 
                     // increment task no
                     _taskNo++;
-                    if (_taskNo >= _binder.Divide) _taskNo = 0;
+                    if (_taskNo >= _divide) _taskNo = 0;
 
                     // timeout
                     lock (_remoteLocks[_taskNo])
@@ -111,6 +126,9 @@ namespace OrangeCabinet
             }, _tokenSourceTimeout.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
         }
 
+        /// <summary>
+        ///     Shutdown timeout task.
+        /// </summary>
         internal void ShutdownTimeoutTask()
         {
             if (_taskTimeout == null) return;
@@ -124,8 +142,8 @@ namespace OrangeCabinet
             _tokenSourceTimeout.Cancel();
             
             // shutdown all sessions
-            OcLogger.Info($"Closing connections at shutdown");
-            for (int i = 0; i < _binder.Divide; i++)
+            OcLogger.Info($"Closing remotes at shutdown");
+            for (int i = 0; i < _divide; i++)
             {
                 lock (_remoteLocks[i])
                 {
@@ -152,17 +170,33 @@ namespace OrangeCabinet
             }
         }
         
+        /// <summary>
+        ///     Get mod.
+        /// </summary>
+        /// <param name="hostPort">host and port string</param>
+        /// <returns>mod</returns>
         private int GetMod(string hostPort)
         {
-            return Math.Abs(hostPort.GetHashCode() % _binder.Divide);
+            return Math.Abs(hostPort.GetHashCode() % _divide);
         }
         
+        /// <summary>
+        ///     Try get remote.
+        /// </summary>
+        /// <param name="hostPort">host and port string</param>
+        /// <param name="remote">remote</param>
+        /// <returns>if get, return true</returns>
         private bool TryGet(string hostPort, out OcRemote? remote)
         {
             int mod = GetMod(hostPort);
             return _remotes[mod].TryGetValue(hostPort, out remote);
         }
         
+        /// <summary>
+        ///     Generate.
+        /// </summary>
+        /// <param name="remoteEndpoint">remote endpoint</param>
+        /// <returns>remote</returns>
         internal OcRemote Generate(IPEndPoint remoteEndpoint)
         {
             string hostPort = remoteEndpoint.OxToHostPort();

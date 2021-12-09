@@ -68,6 +68,11 @@ namespace OrangeCabinet
             return OcUtils.OrNull(() => self.RemoteEndPoint);
         }
         
+        /// <summary>
+        ///     Get host and port string.
+        /// </summary>
+        /// <param name="self">ip endpoint</param>
+        /// <returns>host and port string</returns>
         public static string OxToHostPort(this IPEndPoint self)
         {
             return $"{self.Address}:{self.Port}";
