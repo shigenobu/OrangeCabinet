@@ -9,8 +9,10 @@ namespace OrangeCabinet
     {
         
         
-        private OcBinder _binder;
+        private readonly OcBinder _binder;
 
+        public IPEndPoint LocalEndpoint { get; }
+        
         public IPEndPoint RemoteEndpoint { get; }
 
         private readonly string _rid;
@@ -45,7 +47,10 @@ namespace OrangeCabinet
 
         public OcRemote(OcBinder binder, IPEndPoint remoteEndpoint)
         {
+            // bind
             _binder = binder;
+            _binder.Bind();
+            LocalEndpoint = (IPEndPoint)_binder.BindSocket!.OxSocketLocalEndPoint()!;
             RemoteEndpoint = remoteEndpoint;
 
             _rid = OcUtils.RandomString(16);
@@ -82,9 +87,6 @@ namespace OrangeCabinet
 
         public void Send(byte[] message)
         {
-            // bin
-            _binder.Bind();
-            
             // if escaped, disallow send
             if (_lifeTimestampMilliseconds <= 0) {
                 throw new OcSendException($"Remote({this}) is already escaped");
@@ -97,7 +99,10 @@ namespace OrangeCabinet
 
             try
             {
-                _binder.BindSocket!.SendTo(message, SocketFlags.None, RemoteEndpoint);
+                lock (this)
+                {
+                    _binder.BindSocket!.SendTo(message, SocketFlags.None, RemoteEndpoint);    
+                }
             } catch (Exception e) {
                 OcLogger.Error(e);
                 throw new OcSendException(e);
@@ -149,7 +154,9 @@ namespace OrangeCabinet
         /// <returns>remote id</returns>
         public override string ToString()
         {
-            return $"Rid:{_rid}, HostPort:{RemoteEndpoint.OxToHostPort()}";
+            return $"Rid:{_rid}, " +
+                   $"Local:{LocalEndpoint.OxToHostPort()}, " +
+                   $"Remote:{RemoteEndpoint.OxToHostPort()}";
         }
     }
     

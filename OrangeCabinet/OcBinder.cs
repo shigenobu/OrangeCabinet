@@ -4,12 +4,24 @@ using System.Net.Sockets;
 
 namespace OrangeCabinet
 {
-    public class OcBinder
+    /// <summary>
+    ///     Binder.
+    /// </summary>
+    public class OcBinder : IDisposable
     {
+        /// <summary>
+        ///     Callback.
+        /// </summary>
         internal OcCallback Callback { get; }
 
+        /// <summary>
+        ///     Bind host, default 0.0.0.0.
+        /// </summary>
         public string BindHost { get; init; } = "0.0.0.0";
 
+        /// <summary>
+        ///     Bind port, default random between 18000-28999.
+        /// </summary>
         public int BindPort { get; init; } = OcUtils.RandomInt(18000, 27999);
         
         /// <summary>
@@ -23,9 +35,15 @@ namespace OrangeCabinet
         /// </summary>
         public int Divide { get; init; } = 10;
         
-        private OcHandlerReceive _handlerReceive;
+        /// <summary>
+        ///     Receive handler.
+        /// </summary>
+        private OcHandlerReceive? _handlerReceive;
 
-        private OcRemoteManager _remoteManager;
+        /// <summary>
+        ///     Remote manager.
+        /// </summary>
+        private OcRemoteManager? _remoteManager;
 
         internal Socket? BindSocket { get; private set; }
 
@@ -33,7 +51,7 @@ namespace OrangeCabinet
         {
             Callback = callback;
         }
-        
+
         internal void Bind()
         {
             if (BindSocket != null)
@@ -67,8 +85,8 @@ namespace OrangeCabinet
             catch (Exception e)
             {
                 OcLogger.Error(e);
+                throw new OcBinderException(e);
             }
-
         }
 
         internal void WaitFor()
@@ -88,5 +106,16 @@ namespace OrangeCabinet
             BindSocket?.Close();
             BindSocket = null;
         }
+
+        public void Dispose()
+        {
+            Close();
+        }
+    }
+
+    public class OcBinderException : Exception
+    {
+        internal OcBinderException(Exception e) : base(e.ToString())
+        {}
     }
 }

@@ -1,5 +1,5 @@
-using System;
 using System.IO;
+using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,37 +10,52 @@ namespace OrangeCabinet.Tests
         public TestServer(ITestOutputHelper testOutputHelper)
         {
             OcDate.AddSeconds = 60 * 60 * 9;
-            OcLogger.Writer = new StreamWriter(new FileStream("OrangeCabinet.log", FileMode.Append));
+            // OcLogger.Writer = new StreamWriter(new FileStream("OrangeCabinet.log", FileMode.Append));
             OcLogger.Verbose = true;
+            OcLogger.StopLogger = true;
+            OcLogger.StopLogger = false;
         }
         
         [Fact]
         public void TestForever()
         {
-            var serverBinder = new OcBinder(new Callback())
+            var serverBinder1 = new OcBinder(new Callback())
             {
-                BindPort = 8710
+                BindPort = 8711
             };
-            var server = new OcLocal(serverBinder);
+            var serverBinder2 = new OcBinder(new Callback())
+            {
+                BindPort = 8712
+            };
+            var serverBinder3 = new OcBinder(new Callback())
+            {
+                BindPort = 8713
+            };
+            var server = new OcLocal(new[]{serverBinder1, serverBinder2, serverBinder3});
             server.Start();
-
-            // var clientBinder = new OcBinder(new Callback())
-            // {
-            //     BindPort = 18710
-            // };
-            // var client = new OcRemote(clientBinder, "127.0.0.1", 8710);
-            // client.Send("client".OxToBytes());
-            
             server.WaitFor();
         }
+
+        // [Fact]
+        // public void TestOnlyClient()
+        // {
+        //     using var clientBinder = new OcBinder(new Callback());
+        //     var client = new OcRemote(clientBinder, "127.0.0.1", 8710);
+        //     for (int i = 0; i < 5; i++)
+        //     {
+        //         client.Send("hi\n".OxToBytes());
+        //         Thread.Sleep(1000);
+        //     }
+        // }
     }
 
     public class Callback : OcCallback
     {
         public override void Incoming(OcRemote remote, byte[] message)
         {
+            remote.ChangeIdleMilliSeconds(5000);
             OcLogger.Debug($"Incoming:{remote} {message.OxToString()}");
-            remote.Send("a".OxToBytes());
+            remote.Send("hello\n".OxToBytes());
         }
 
         public override void Timeout(OcRemote remote)

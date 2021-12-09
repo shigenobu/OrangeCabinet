@@ -4,6 +4,6 @@ namespace OrangeCabinet
 {
     public class OcState
     {
-        public Socket Socket { get; set; }
+        public Socket Socket { get; init; } = null!;
     }
 }

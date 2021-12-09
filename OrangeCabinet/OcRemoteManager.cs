@@ -45,7 +45,7 @@ namespace OrangeCabinet
         /// </summary>
         private int _taskNo;
         
-        public OcRemoteManager(OcBinder binder)
+        internal OcRemoteManager(OcBinder binder)
         {
             _binder = binder;
             
@@ -163,7 +163,7 @@ namespace OrangeCabinet
             return _remotes[mod].TryGetValue(hostPort, out remote);
         }
         
-        public OcRemote Generate(IPEndPoint remoteEndpoint)
+        internal OcRemote Generate(IPEndPoint remoteEndpoint)
         {
             string hostPort = remoteEndpoint.OxToHostPort();
             int mod = GetMod(hostPort);

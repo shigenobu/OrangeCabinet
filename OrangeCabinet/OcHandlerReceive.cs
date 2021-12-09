@@ -16,17 +16,17 @@ namespace OrangeCabinet
         /// <summary>
         ///     Callback.
         /// </summary>
-        private OcCallback _callback;
+        private readonly OcCallback _callback;
 
         /// <summary>
         ///     Read buffer size.
         /// </summary>
-        private int _readBufferSize;
+        private readonly int _readBufferSize;
 
         /// <summary>
         ///     Remote manager.
         /// </summary>
-        private OcRemoteManager _remoteManager;
+        private readonly OcRemoteManager _remoteManager;
         
         /// <summary>
         ///     Cancellation token for receive task.
@@ -36,7 +36,7 @@ namespace OrangeCabinet
         /// <summary>
         ///     Receive task.
         /// </summary>
-        public Task? TaskReceive { get; private set; }
+        internal Task? TaskReceive { get; private set; }
         
         public OcHandlerReceive(OcCallback callback, int readBufferSize, OcRemoteManager remoteManager)
         {
@@ -66,7 +66,20 @@ namespace OrangeCabinet
                     try
                     {
                         // reset buffer
-                        state.Buffer = new byte[_readBufferSize];
+                        if (state.Buffer == null)
+                        {
+                            state.Buffer = new byte[_readBufferSize];    
+                        }
+                        else
+                        {
+                            // new
+                            state = new OcStateReceive()
+                            {
+                                Socket = state.Socket,
+                                Buffer = new byte[_readBufferSize]
+                            };
+                        }
+                        
                         
                         // receive
                         EndPoint remoteEndpoint = new IPEndPoint(IPAddress.Any, 0);
@@ -110,11 +123,11 @@ namespace OrangeCabinet
                 int received = state!.Socket.EndReceiveFrom(result, ref remoteEndpoint);
                 if (received <= 0)
                 {
-                    OcLogger.Debug(() => $"Received size: {received}");    
+                    OcLogger.Debug(() => $"Received wrong size: {received}");    
                     return;
                 }
                 var remote = _remoteManager.Generate((IPEndPoint)remoteEndpoint);
-                OcLogger.Debug(() => $"Received remote: {remote}");
+                OcLogger.Debug(() => $"Received remote: {remote}, size: {received}");
                 lock (remote)
                 {
                     // if remote is active and not timeout, invoke incoming

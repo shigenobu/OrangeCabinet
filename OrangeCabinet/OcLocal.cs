@@ -1,27 +1,42 @@
+using System.Collections.Generic;
+
 namespace OrangeCabinet
 {
     public class OcLocal
     {
-        private OcBinder _binder;
+        private readonly OcBinder[] _binders;
 
-        public OcLocal(OcBinder binder)
+        public OcLocal(params OcBinder[] binders)
         {
-            _binder = binder;
+            _binders = binders;
+        }
+
+        public OcLocal(List<OcBinder> binders) : this(binders.ToArray())
+        {
         }
 
         public void Start()
         {
-            _binder.Bind();
+            foreach (var binder in _binders)
+            {
+                binder.Bind();
+            }
         }
 
         public void WaitFor()
         {
-            _binder.WaitFor();
+            foreach (var binder in _binders)
+            {
+                binder.WaitFor();
+            }
         }
         
         public void Shutdown()
         {
-            _binder.Close();
+            foreach (var binder in _binders)
+            {
+                binder.Close();
+            }
         }
     }
 }
