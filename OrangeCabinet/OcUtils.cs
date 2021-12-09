@@ -14,7 +14,7 @@ namespace OrangeCabinet
         private const string RandomChars = "0123456789abcedfghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ";
         
         /// <summary>
-        ///     Make Random string.
+        ///     Make random string.
         /// </summary>
         /// <param name="length">length</param>
         /// <returns>random string</returns>
@@ -36,6 +36,12 @@ namespace OrangeCabinet
             return builder.ToString();
         }
 
+        /// <summary>
+        ///     Make random int.
+        /// </summary>
+        /// <param name="min">min</param>
+        /// <param name="max">max</param>
+        /// <returns>random int</returns>
         public static int RandomInt(int min, int max)
         {
             return new Random().Next(min, max);

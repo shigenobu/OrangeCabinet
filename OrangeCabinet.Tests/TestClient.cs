@@ -86,7 +86,7 @@ namespace OrangeCabinet.Tests
             remote.SetValue(Key, inc);
             
             remote.Send($"From server: {inc}".OxToBytes());
-            if (inc > 2) remote.Escape();
+            if (inc > 10) remote.Escape();
         }
 
         public override void Timeout(OcRemote remote)
@@ -113,7 +113,7 @@ namespace OrangeCabinet.Tests
             remote.SetValue(Key, inc);
             
             remote.Send($"From client: {inc}".OxToBytes());
-            if (inc > 2)
+            if (inc > 10)
             {
                 remote.ClearValue(Key);
                 remote.Escape();
