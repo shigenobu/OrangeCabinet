@@ -20,22 +20,11 @@ namespace OrangeCabinet.Tests
         [Fact]
         public void TestForever()
         {
-            var serverBinders = new List<OcBinder>
+            var serverBinder = new OcBinder(new Callback())
             {
-                new OcBinder(new Callback())
-                {
-                    BindPort = 8711
-                },
-                new OcBinder(new Callback())
-                {
-                    BindPort = 8712
-                },
-                new OcBinder(new Callback())
-                {
-                    BindPort = 871
-                }
+                BindPort = 8711
             };
-            var server = new OcLocal(serverBinders);
+            var server = new OcLocal(serverBinder);
             server.Start();
             server.WaitFor();
         }

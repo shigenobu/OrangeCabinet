@@ -46,11 +46,6 @@ namespace OrangeCabinet
         ///     Timeout task.
         /// </summary>
         private Task? _taskTimeout;
-
-        /// <summary>
-        ///     Task no.
-        /// </summary>
-        private int _taskNo;
         
         /// <summary>
         ///     Constructor.
@@ -83,6 +78,7 @@ namespace OrangeCabinet
             _tokenSourceTimeout = new CancellationTokenSource();
             _taskTimeout = Task.Factory.StartNew(async () =>
             {
+                int taskNo = 0;
                 while (true)
                 {
                     // check cancel
@@ -96,13 +92,13 @@ namespace OrangeCabinet
                     await Task.Delay(delay);
                 
                     // increment task no
-                    _taskNo++;
-                    if (_taskNo >= _divide) _taskNo = 0;
+                    taskNo++;
+                    if (taskNo >= _divide) taskNo = 0;
 
                     // timeout
-                    lock (_remoteLocks[_taskNo])
+                    lock (_remoteLocks[taskNo])
                     {
-                        foreach (var pair in _remotes[_taskNo])
+                        foreach (var pair in _remotes[taskNo])
                         {
                             lock (pair.Value)
                             {
@@ -112,7 +108,7 @@ namespace OrangeCabinet
                                     pair.Value.Active = false;
                                     _binder.Callback.Timeout(pair.Value);
 
-                                    if (_remotes[_taskNo].TryRemove(pair))
+                                    if (_remotes[taskNo].TryRemove(pair))
                                     {
                                         // decrement
                                         Interlocked.Decrement(ref _remoteCount);
@@ -157,7 +153,7 @@ namespace OrangeCabinet
                                 pair.Value.Active = false;
                                 _binder.Callback.Shutdown(pair.Value);
 
-                                if (_remotes[_taskNo].TryRemove(pair))
+                                if (_remotes[i].TryRemove(pair))
                                 {
                                     // decrement
                                     Interlocked.Decrement(ref _remoteCount);
@@ -201,10 +197,6 @@ namespace OrangeCabinet
         {
             string hostPort = remoteEndpoint.OxToHostPort();
             int mod = GetMod(hostPort);
-            if (_remotes[mod].ContainsKey(hostPort))
-            {
-                return _remotes[mod][hostPort];
-            }
 
             OcRemote? remote;
             lock (_remoteLocks[mod])
