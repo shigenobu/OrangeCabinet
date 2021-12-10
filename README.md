@@ -10,6 +10,7 @@
 * Callback for 'Incoming'(received), 'Timeout'(timeout), 'Shutdown'(shutdown).
 * Can store user value in remote.
 * Check timeout at regular intervals by last receive time.
+* Client bind too, not connect. So, previously known client port.
 
 ## how to use
 
