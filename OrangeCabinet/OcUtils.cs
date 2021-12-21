@@ -6,7 +6,7 @@ namespace OrangeCabinet
     /// <summary>
     ///     Utils.
     /// </summary>
-    public static class OcUtils
+    internal static class OcUtils
     {
         /// <summary>
         ///     Random chars.
@@ -18,7 +18,7 @@ namespace OrangeCabinet
         /// </summary>
         /// <param name="length">length</param>
         /// <returns>random string</returns>
-        public static string RandomString(int length)
+        internal static string RandomString(int length)
         {
             if (length < 1)
                 return string.Empty;
@@ -42,7 +42,7 @@ namespace OrangeCabinet
         /// <param name="min">min</param>
         /// <param name="max">max</param>
         /// <returns>random int</returns>
-        public static int RandomInt(int min, int max)
+        internal static int RandomInt(int min, int max)
         {
             return new Random().Next(min, max);
         }
@@ -53,7 +53,7 @@ namespace OrangeCabinet
         /// <param name="func">func</param>
         /// <typeparam name="T">type</typeparam>
         /// <returns>invoke result or null</returns>
-        public static T? OrNull<T>(Func<T> func)
+        internal static T? OrNull<T>(Func<T> func)
         {
             try
             {

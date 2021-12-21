@@ -112,7 +112,17 @@ namespace OrangeCabinet
         }
 
         /// <summary>
-        ///     Send.
+        ///     Send bytes.
+        /// </summary>
+        /// <param name="message">message</param>
+        /// <exception cref="OcSendException">send error</exception>
+        public void Send(string message)
+        {
+            Send(message.OxToBytes());
+        }
+        
+        /// <summary>
+        ///     Send bytes.
         /// </summary>
         /// <param name="message">message</param>
         /// <exception cref="OcSendException">send error</exception>

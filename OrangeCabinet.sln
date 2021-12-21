@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrangeCabinet", "OrangeCabi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrangeCabinet.Tests", "OrangeCabinet.Tests\OrangeCabinet.Tests.csproj", "{39C3364A-D8A2-4B68-BBD5-D7A06F3FDB6F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrangeCabinet.Sample", "OrangeCabinet.Sample\OrangeCabinet.Sample.csproj", "{D2B3BB04-07EB-43D3-8D6C-5D247C8E8B64}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{39C3364A-D8A2-4B68-BBD5-D7A06F3FDB6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39C3364A-D8A2-4B68-BBD5-D7A06F3FDB6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39C3364A-D8A2-4B68-BBD5-D7A06F3FDB6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2B3BB04-07EB-43D3-8D6C-5D247C8E8B64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2B3BB04-07EB-43D3-8D6C-5D247C8E8B64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2B3BB04-07EB-43D3-8D6C-5D247C8E8B64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2B3BB04-07EB-43D3-8D6C-5D247C8E8B64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

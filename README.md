@@ -16,19 +16,19 @@
 
 ### callback
 
-    public class SampleCallback : OcCallback
+    public class Callback : OcCallback
     {
         private const string Key = "inc";
         
         public override void Incoming(OcRemote remote, byte[] message)
         {
-            OcLogger.Info($"Received: {message.OxToString()} ({remote})");
+            Console.WriteLine($"Received: {Encoding.UTF8.GetString(message)} ({remote})");
             
             int inc = remote.GetValue<int>(Key);
             inc++;
             remote.SetValue(Key, inc);
             
-            remote.Send($"{inc}".OxToBytes());
+            remote.Send($"{inc}");
             if (inc > 10)
             {
                 remote.ClearValue(Key);
@@ -38,12 +38,12 @@
 
         public override void Timeout(OcRemote remote)
         {
-            OcLogger.Info($"Timeout: {remote}");
+            Console.WriteLine($"Timeout: {remote}");
         }
 
         public override void Shutdown(OcRemote remote)
         {
-            OcLogger.Info($"Shutdown: {remote}");
+            Console.WriteLine($"Shutdown: {remote}");
         }
     }
 

@@ -17,7 +17,7 @@ namespace OrangeCabinet
         ///     Now.
         /// </summary>
         /// <returns>yyyy-MM-dd HH:mm:ss.fff</returns>
-        public static string Now()
+        internal static string Now()
         {
             DateTimeOffset dateTimeOffset = DateTimeOffset.UtcNow;
             dateTimeOffset = dateTimeOffset.AddSeconds(AddSeconds);
@@ -28,7 +28,7 @@ namespace OrangeCabinet
         ///     Not timestamp milli seconds.
         /// </summary>
         /// <returns>milli seconds</returns>
-        public static long NowTimestampMilliSeconds()
+        internal static long NowTimestampMilliSeconds()
         {
             DateTimeOffset dateTimeOffset = DateTimeOffset.UtcNow;
             dateTimeOffset = dateTimeOffset.AddSeconds(AddSeconds);

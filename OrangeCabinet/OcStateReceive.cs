@@ -3,12 +3,12 @@ namespace OrangeCabinet
     /// <summary>
     ///     State receive.
     /// </summary>
-    public class OcStateReceive : OcState
+    internal class OcStateReceive : OcState
     {
         /// <summary>
         ///     Buffer.
         /// </summary>
-        public byte[]? Buffer { get; set; }
+        internal byte[]? Buffer { get; set; }
 
         /// <summary>
         ///     To string.

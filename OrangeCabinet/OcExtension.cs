@@ -8,7 +8,7 @@ namespace OrangeCabinet
     /// <summary>
     ///     Extenstion.
     /// </summary>
-    public static class OcExtension
+    internal static class OcExtension
     {
         /// <summary>
         ///     Byte[] to utf8 string.
@@ -16,7 +16,7 @@ namespace OrangeCabinet
         /// <param name="self">byte array</param>
         /// <returns>utf8 string</returns>
         /// <exception cref="OcExtensionException">error</exception>
-        public static string OxToString(this byte[] self)
+        internal static string OxToString(this byte[] self)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace OrangeCabinet
         /// <param name="self">utf8 string</param>
         /// <returns>byte array</returns>
         /// <exception cref="OcExtensionException">error</exception>
-        public static byte[] OxToBytes(this string self)
+        internal static byte[] OxToBytes(this string self)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace OrangeCabinet
         /// </summary>
         /// <param name="self">socket</param>
         /// <returns>locale endpoint or null</returns>
-        public static EndPoint? OxSocketLocalEndPoint(this Socket self)
+        internal static EndPoint? OxSocketLocalEndPoint(this Socket self)
         {
             return OcUtils.OrNull(() => self.LocalEndPoint);
         }
@@ -63,7 +63,7 @@ namespace OrangeCabinet
         /// </summary>
         /// <param name="self">socket</param>
         /// <returns>remote endpoint or null</returns>
-        public static EndPoint? OxSocketRemoteEndPoint(this Socket self)
+        internal static EndPoint? OxSocketRemoteEndPoint(this Socket self)
         {
             return OcUtils.OrNull(() => self.RemoteEndPoint);
         }
@@ -73,7 +73,7 @@ namespace OrangeCabinet
         /// </summary>
         /// <param name="self">ip endpoint</param>
         /// <returns>host and port string</returns>
-        public static string OxToHostPort(this IPEndPoint self)
+        internal static string OxToHostPort(this IPEndPoint self)
         {
             return $"{self.Address}:{self.Port}";
         }
@@ -88,7 +88,7 @@ namespace OrangeCabinet
         ///     Constructor.
         /// </summary>
         /// <param name="exception">error</param>
-        public OcExtensionException(Exception exception) : base(exception.ToString())
+        internal OcExtensionException(Exception exception) : base(exception.ToString())
         {
         }
     }

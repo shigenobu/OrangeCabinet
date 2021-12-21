@@ -9,7 +9,7 @@ namespace OrangeCabinet
     /// <summary>
     ///     Handler receive.
     /// </summary>
-    public class OcHandlerReceive : OcHandler<OcStateReceive>
+    internal class OcHandlerReceive : OcHandler<OcStateReceive>
     {
         /// <summary>
         ///     Reset event for receive.
@@ -60,7 +60,7 @@ namespace OrangeCabinet
         ///     Prepare.
         /// </summary>
         /// <param name="state">state</param>
-        public override void Prepare(OcStateReceive state)
+        internal override void Prepare(OcStateReceive state)
         {
             TaskReceive = Task.Factory.StartNew(() =>
             {
@@ -114,7 +114,7 @@ namespace OrangeCabinet
         ///     Complete.
         /// </summary>
         /// <param name="result">async result</param>
-        public override void Complete(IAsyncResult result)
+        internal override void Complete(IAsyncResult result)
         {
             // signal on
             _received.Set();
@@ -161,7 +161,7 @@ namespace OrangeCabinet
         ///     Failed.
         /// </summary>
         /// <param name="state">state</param>
-        public override void Failed(OcStateReceive state)
+        internal override void Failed(OcStateReceive state)
         {
             OcLogger.Debug(() => $"Receive failed: {state}");
         }
@@ -169,7 +169,7 @@ namespace OrangeCabinet
         /// <summary>
         ///     Shutdown.
         /// </summary>
-        public override void Shutdown()
+        internal override void Shutdown()
         {
             // shutdown receive
             if (TaskReceive is { IsCanceled: false }) _tokenSourceReceive.Cancel();

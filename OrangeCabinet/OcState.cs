@@ -5,11 +5,11 @@ namespace OrangeCabinet
     /// <summary>
     ///     State.
     /// </summary>
-    public class OcState
+    internal class OcState
     {
         /// <summary>
         ///     Socket.
         /// </summary>
-        public Socket Socket { get; init; } = null!;
+        internal Socket Socket { get; init; } = null!;
     }
 }

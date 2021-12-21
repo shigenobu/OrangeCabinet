@@ -45,7 +45,7 @@ namespace OrangeCabinet
         ///     Error.
         /// </summary>
         /// <param name="message">log message</param>
-        public static void Error(object? message)
+        internal static void Error(object? message)
         {
             Out("ERROR", message);
         }
@@ -54,7 +54,7 @@ namespace OrangeCabinet
         ///     Info.
         /// </summary>
         /// <param name="message">log message</param>
-        public static void Info(object? message)
+        internal static void Info(object? message)
         {
             Out("INFO", message);
         }
@@ -63,7 +63,7 @@ namespace OrangeCabinet
         ///     Debug.
         /// </summary>
         /// <param name="message">log message</param>
-        public static void Debug(object? message)
+        internal static void Debug(object? message)
         {
             if (!Verbose) return;
             Out("DEBUG", message);
@@ -73,7 +73,7 @@ namespace OrangeCabinet
         ///     Debug.
         /// </summary>
         /// <param name="message">log func</param>
-        public static void Debug(Func<object?> message)
+        internal static void Debug(Func<object?> message)
         {
             if (!Verbose) return;
             Out("DEBUG", message.Invoke());

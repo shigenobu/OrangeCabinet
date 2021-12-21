@@ -6,7 +6,7 @@ namespace OrangeCabinet
     ///     Handler.
     /// </summary>
     /// <typeparam name="T">type of state</typeparam>
-    public abstract class OcHandler<T> where T : OcState
+    internal abstract class OcHandler<T> where T : OcState
     {
         /// <summary>
         ///     Get state.
@@ -25,23 +25,23 @@ namespace OrangeCabinet
         ///     Prepare (Receive)
         /// </summary>
         /// <param name="state">state</param>
-        public abstract void Prepare(T state);
+        internal abstract void Prepare(T state);
         
         /// <summary>
         ///     Complete (receive)
         /// </summary>
         /// <param name="result"></param>
-        public abstract void Complete(IAsyncResult result);
+        internal abstract void Complete(IAsyncResult result);
 
         /// <summary>
         ///     Failed.
         /// </summary>
         /// <param name="state">state</param>
-        public abstract void Failed(T state);
+        internal abstract void Failed(T state);
         
         /// <summary>
         ///     Shutdown.
         /// </summary>
-        public abstract void Shutdown();
+        internal abstract void Shutdown();
     }
 }
