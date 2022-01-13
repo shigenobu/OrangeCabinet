@@ -66,13 +66,13 @@
 
     public static void Main(string[] args)
     {
-        using var clientBinder = new OcBinder(new SampleCallback())
+        using var clientBinder = new OcBinder(new Callback())
         {
             BindPort = 18710,
         };
         var client = new OcRemote(clientBinder, "127.0.0.1", 8710);
         for (int j = 0; j < 3; j++)
         {
-            client.Send($"{j}".OxToBytes());
+            client.Send($"{j}");
         }
     }
