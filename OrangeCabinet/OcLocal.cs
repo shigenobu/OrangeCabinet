@@ -1,49 +1,45 @@
-using System;
-using System.Collections.Generic;
+namespace OrangeCabinet;
 
-namespace OrangeCabinet
+/// <summary>
+///     Local for server.
+/// </summary>
+public class OcLocal
 {
     /// <summary>
-    ///     Local for server.
+    ///     binder.
     /// </summary>
-    public class OcLocal
+    private readonly OcBinder _binder;
+
+    /// <summary>
+    ///     Constructor.
+    /// </summary>
+    /// <param name="binder">binder</param>
+    public OcLocal(OcBinder binder)
     {
-        /// <summary>
-        ///     binder.
-        /// </summary>
-        private readonly OcBinder _binder;
+        _binder = binder;
+    }
 
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="binder">binder</param>
-        public OcLocal(OcBinder binder)
-        {
-            _binder = binder;
-        }
+    /// <summary>
+    ///     Start.
+    /// </summary>
+    public void Start()
+    {
+        _binder.Bind(OcBindMode.Server);
+    }
 
-        /// <summary>
-        ///     Start.
-        /// </summary>
-        public void Start()
-        {
-            _binder.Bind(OcBindMode.Server);
-        }
+    /// <summary>
+    ///     Wait for.
+    /// </summary>
+    public void WaitFor()
+    {
+        _binder.WaitFor();
+    }
 
-        /// <summary>
-        ///     Wait for.
-        /// </summary>
-        public void WaitFor()
-        {
-            _binder.WaitFor();
-        }
-        
-        /// <summary>
-        ///     Shutdown.
-        /// </summary>
-        public void Shutdown()
-        {
-            _binder.Close();
-        }
+    /// <summary>
+    ///     Shutdown.
+    /// </summary>
+    public void Shutdown()
+    {
+        _binder.Close();
     }
 }

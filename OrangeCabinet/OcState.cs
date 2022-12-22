@@ -1,15 +1,14 @@
 using System.Net.Sockets;
 
-namespace OrangeCabinet
+namespace OrangeCabinet;
+
+/// <summary>
+///     State.
+/// </summary>
+internal class OcState
 {
     /// <summary>
-    ///     State.
+    ///     Socket.
     /// </summary>
-    internal class OcState
-    {
-        /// <summary>
-        ///     Socket.
-        /// </summary>
-        internal Socket Socket { get; init; } = null!;
-    }
+    internal Socket Socket { get; init; } = null!;
 }

@@ -2,182 +2,179 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 
-namespace OrangeCabinet
+namespace OrangeCabinet;
+
+/// <summary>
+///     Binder.
+/// </summary>
+public class OcBinder : IDisposable
 {
     /// <summary>
-    ///     Binder.
+    ///     Receive handler.
     /// </summary>
-    public class OcBinder : IDisposable
+    private OcHandlerReceive? _handlerReceive;
+
+    /// <summary>
+    ///     Remote manager.
+    /// </summary>
+    private OcRemoteManager? _remoteManager;
+
+    /// <summary>
+    ///     Constructor.
+    /// </summary>
+    /// <param name="callback">callback</param>
+    public OcBinder(OcCallback callback)
     {
-        /// <summary>
-        ///     Callback.
-        /// </summary>
-        internal OcCallback Callback { get; }
+        Callback = callback;
+    }
 
-        /// <summary>
-        ///     Bind host, default 0.0.0.0.
-        /// </summary>
-        public string BindHost { get; init; } = "0.0.0.0";
+    /// <summary>
+    ///     Callback.
+    /// </summary>
+    internal OcCallback Callback { get; }
 
-        /// <summary>
-        ///     Bind port, default random between 18000-28999.
-        /// </summary>
-        public int BindPort { get; init; } = OcUtils.RandomInt(18000, 27999);
-        
-        /// <summary>
-        ///     ReadBufferSize for read(receive).
-        /// </summary>
-        public int ReadBufferSize { get; init; } = 1350;
+    /// <summary>
+    ///     Bind host, default 0.0.0.0.
+    /// </summary>
+    public string BindHost { get; init; } = "0.0.0.0";
 
-        /// <summary>
-        ///     Divide.
-        ///     It's remote divided number.
-        /// </summary>
-        public int Divide { get; init; } = 10;
-        
-        /// <summary>
-        ///     Receive handler.
-        /// </summary>
-        private OcHandlerReceive? _handlerReceive;
+    /// <summary>
+    ///     Bind port, default random between 18000-28999.
+    /// </summary>
+    public int BindPort { get; init; } = OcUtils.RandomInt(18000, 27999);
 
-        /// <summary>
-        ///     Remote manager.
-        /// </summary>
-        private OcRemoteManager? _remoteManager;
+    /// <summary>
+    ///     ReadBufferSize for read(receive).
+    /// </summary>
+    public int ReadBufferSize { get; init; } = 1350;
 
-        /// <summary>
-        ///     Bind socket.
-        /// </summary>
-        internal Socket? BindSocket { get; private set; }
+    /// <summary>
+    ///     Divide.
+    ///     It's remote divided number.
+    /// </summary>
+    public int Divide { get; init; } = 10;
 
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="callback">callback</param>
-        public OcBinder(OcCallback callback)
+    /// <summary>
+    ///     Bind socket.
+    /// </summary>
+    internal Socket? BindSocket { get; private set; }
+
+    /// <summary>
+    ///     Dispose.
+    /// </summary>
+    public void Dispose()
+    {
+        Close();
+    }
+
+    /// <summary>
+    ///     Bind.
+    /// </summary>
+    /// <param name="bindMode">bind mode</param>
+    /// <exception cref="OcBinderException">bind exception</exception>
+    internal void Bind(OcBindMode bindMode)
+    {
+        if (BindSocket != null) return;
+
+        try
         {
-            Callback = callback;
-        }
+            // init
+            BindSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            BindSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            BindSocket.Bind(new IPEndPoint(IPAddress.Parse(BindHost), BindPort));
+            BindSocket.Blocking = false;
 
-        /// <summary>
-        ///     Bind.
-        /// </summary>
-        /// <param name="bindMode">bind mode</param>
-        /// <exception cref="OcBinderException">bind exception</exception>
-        internal void Bind(OcBindMode bindMode)
-        {
-            if (BindSocket != null)
-            {
-                return;
-            }
-
-            try
-            {
-                // init
-                BindSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                BindSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                BindSocket.Bind(new IPEndPoint(IPAddress.Parse(BindHost), BindPort));
-                BindSocket.Blocking = false;
-                
-                // manager
-                _remoteManager = new OcRemoteManager(this);
-                _remoteManager.StartTimeoutTask();
-
-                // handler
-                _handlerReceive = new OcHandlerReceive(Callback, ReadBufferSize, _remoteManager);
-                var state = new OcStateReceive
-                {
-                    Socket = BindSocket,
-                };
-                _handlerReceive.Prepare(state);
-            
-                // start
-                OcLogger.Info($"{bindMode} bind on {BindHost}:{BindPort} (readBufferSize:{ReadBufferSize})");
-            }
-            catch (Exception e)
-            {
-                OcLogger.Error(e);
-                throw new OcBinderException(e);
-            }
-        }
-
-        /// <summary>
-        ///     Wait for.
-        /// </summary>
-        internal void WaitFor()
-        {
-            _handlerReceive?.TaskReceive?.Wait();
-        }
-        
-        /// <summary>
-        ///     Close.
-        /// </summary>
-        internal void Close()
-        {
             // manager
-            _remoteManager?.ShutdownTimeoutTask();
-            
+            _remoteManager = new OcRemoteManager(this);
+            _remoteManager.StartTimeoutTask();
+
             // handler
-            _handlerReceive?.Shutdown();
-            
-            // close
-            BindSocket?.Close();
-            BindSocket = null;
-        }
+            _handlerReceive = new OcHandlerReceive(Callback, ReadBufferSize, _remoteManager);
+            var state = new OcStateReceive
+            {
+                Socket = BindSocket
+            };
+            _handlerReceive.Prepare(state);
 
-        /// <summary>
-        ///     Dispose.
-        /// </summary>
-        public void Dispose()
-        {
-            Close();
+            // start
+            OcLogger.Info($"{bindMode} bind on {BindHost}:{BindPort} (readBufferSize:{ReadBufferSize})");
         }
-
-        /// <summary>
-        ///     Get remote count.
-        /// </summary>
-        /// <returns>remote count</returns>
-        public long GetRemoteCount()
+        catch (Exception e)
         {
-            return _remoteManager?.GetRemoteCount() ?? 0;
-        }
-
-        /// <summary>
-        ///     To string.
-        /// </summary>
-        /// <returns>local host and port, or empty.</returns>
-        public override string ToString()
-        {
-            return $"Bind socket: {BindSocket?.OxSocketLocalEndPoint()}";
+            OcLogger.Error(e);
+            throw new OcBinderException(e);
         }
     }
 
     /// <summary>
-    ///     Binder mode.
+    ///     Wait for.
     /// </summary>
-    internal enum OcBindMode
+    internal void WaitFor()
     {
-        /// <summary>
-        ///     Server.
-        /// </summary>
-        Server,
-        
-        /// <summary>
-        ///     Client.
-        /// </summary>
-        Client
+        _handlerReceive?.TaskReceive?.Wait();
     }
-    
+
     /// <summary>
-    ///     Bind exception.
+    ///     Close.
     /// </summary>
-    public class OcBinderException : Exception
+    internal void Close()
     {
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="e">exception</param>
-        internal OcBinderException(Exception e) : base(e.ToString())
-        {}
+        // manager
+        _remoteManager?.ShutdownTimeoutTask();
+
+        // handler
+        _handlerReceive?.Shutdown();
+
+        // close
+        BindSocket?.Close();
+        BindSocket = null;
+    }
+
+    /// <summary>
+    ///     Get remote count.
+    /// </summary>
+    /// <returns>remote count</returns>
+    public long GetRemoteCount()
+    {
+        return _remoteManager?.GetRemoteCount() ?? 0;
+    }
+
+    /// <summary>
+    ///     To string.
+    /// </summary>
+    /// <returns>local host and port, or empty.</returns>
+    public override string ToString()
+    {
+        return $"Bind socket: {BindSocket?.OxSocketLocalEndPoint()}";
+    }
+}
+
+/// <summary>
+///     Binder mode.
+/// </summary>
+internal enum OcBindMode
+{
+    /// <summary>
+    ///     Server.
+    /// </summary>
+    Server,
+
+    /// <summary>
+    ///     Client.
+    /// </summary>
+    Client
+}
+
+/// <summary>
+///     Bind exception.
+/// </summary>
+public class OcBinderException : Exception
+{
+    /// <summary>
+    ///     Constructor.
+    /// </summary>
+    /// <param name="e">exception</param>
+    internal OcBinderException(Exception e) : base(e.ToString())
+    {
     }
 }
