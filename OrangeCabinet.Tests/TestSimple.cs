@@ -12,11 +12,11 @@ namespace OrangeCabinet.Tests
             OcDate.AddSeconds = 60 * 60 * 9;
             // OcLogger.Writer = new StreamWriter(new FileStream("Test.log", FileMode.Append));
             OcLogger.Verbose = true;
-            OcLogger.Transfer = new OcLoggerTransfer
-            {
-                Transfer = msg => testOutputHelper.WriteLine(msg.ToString()),
-                Raw = false
-            };
+            // OcLogger.Transfer = new OcLoggerTransfer
+            // {
+            //     Transfer = msg => testOutputHelper.WriteLine(msg.ToString()),
+            //     Raw = false
+            // };
         }
         
         [Fact]
