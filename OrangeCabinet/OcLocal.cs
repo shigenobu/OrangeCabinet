@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace OrangeCabinet;
 
 /// <summary>
@@ -25,6 +27,30 @@ public class OcLocal
     public void Start()
     {
         _binder.Bind(OcBindMode.Server);
+    }
+
+    /// <summary>
+    ///     Send string to remote.
+    ///     Enable to send message for some endpoint directly what you hope.
+    ///     Notice, this method is not checked for remote endpoint state.
+    /// </summary>
+    /// <param name="message">message</param>
+    /// <param name="remoteEndpoint">remote endpoint</param>
+    public void SendTo(string message, IPEndPoint remoteEndpoint)
+    {
+        _binder.SendTo(message.OxToBytes(), remoteEndpoint);
+    }
+
+    /// <summary>
+    ///     Send bytes to remote.
+    ///     Enable to send message for some endpoint directly what you hope.
+    ///     Notice, this method is not checked for remote endpoint state.
+    /// </summary>
+    /// <param name="message">message</param>
+    /// <param name="remoteEndpoint">remote endpoint</param>
+    public void SendTo(byte[] message, IPEndPoint remoteEndpoint)
+    {
+        _binder.SendTo(message, remoteEndpoint);
     }
 
     /// <summary>

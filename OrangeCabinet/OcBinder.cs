@@ -107,6 +107,19 @@ public class OcBinder : IDisposable
     }
 
     /// <summary>
+    ///     Send bytes to remote.
+    /// </summary>
+    /// <param name="message">message</param>
+    /// <param name="remoteEndpoint">remote endpoint</param>
+    /// <exception cref="OcBinderException">bind exception</exception>
+    internal void SendTo(byte[] message, IPEndPoint remoteEndpoint)
+    {
+        if (BindSocket == null)
+            throw new OcBinderException($"Not bind on {BindSocket}:{BindPort}");
+        BindSocket.SendTo(message, SocketFlags.None, remoteEndpoint);
+    }
+
+    /// <summary>
     ///     Wait for.
     /// </summary>
     internal void WaitFor()
@@ -175,6 +188,14 @@ public class OcBinderException : Exception
     /// </summary>
     /// <param name="e">exception</param>
     internal OcBinderException(Exception e) : base(e.ToString())
+    {
+    }
+
+    /// <summary>
+    ///     Constructor.
+    /// </summary>
+    /// <param name="message">message</param>
+    internal OcBinderException(string message) : base(message)
     {
     }
 }

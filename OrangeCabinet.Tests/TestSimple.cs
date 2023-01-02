@@ -1,4 +1,5 @@
 using System.IO;
+using System.Net;
 using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
@@ -44,6 +45,7 @@ namespace OrangeCabinet.Tests
 
             // ...
             Thread.Sleep(1000);
+            server.SendTo("hello from server", IPEndPoint.Parse("127.0.0.1:18710"));
             server.Shutdown();
         }
     }

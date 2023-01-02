@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
 
 namespace OrangeCabinet;
 
@@ -112,7 +111,8 @@ public class OcRemote
     }
 
     /// <summary>
-    ///     Send bytes.
+    ///     Send string.
+    ///     If remote is timeout or inactive, not send and throws exception.
     /// </summary>
     /// <param name="message">message</param>
     /// <exception cref="OcSendException">send error</exception>
@@ -123,6 +123,7 @@ public class OcRemote
 
     /// <summary>
     ///     Send bytes.
+    ///     If remote is timeout or inactive, not send and throws exception.
     /// </summary>
     /// <param name="message">message</param>
     /// <exception cref="OcSendException">send error</exception>
@@ -138,7 +139,7 @@ public class OcRemote
         {
             lock (this)
             {
-                _binder.BindSocket!.SendTo(message, SocketFlags.None, RemoteEndpoint);
+                _binder.SendTo(message, RemoteEndpoint);
             }
         }
         catch (Exception e)

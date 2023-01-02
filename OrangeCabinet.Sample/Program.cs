@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,6 +35,7 @@ namespace OrangeCabinet.Sample
                 server.Start();
                 // server.WaitFor();
                 await Task.Delay(1000);
+                server.SendTo("0", IPEndPoint.Parse("127.0.0.1:18170"));
             });
         }
 
