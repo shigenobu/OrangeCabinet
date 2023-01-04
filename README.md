@@ -57,6 +57,7 @@
         };
         var server = new OcLocal(serverBinder);
         server.Start();
+        server.SendTo("0", IPEndPoint.Parse("127.0.0.1:18170"));  // Send from server to some endpoint what you hope.
         server.WaitFor();
         // ...
         server.Shutdown();

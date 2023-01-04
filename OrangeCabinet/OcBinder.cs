@@ -52,7 +52,7 @@ public class OcBinder : IDisposable
     ///     Divide.
     ///     It's remote divided number.
     /// </summary>
-    public int Divide { get; init; } = 10;
+    public int Divide { get; set; } = 10;
 
     /// <summary>
     ///     Bind socket.
@@ -75,6 +75,9 @@ public class OcBinder : IDisposable
     internal void Bind(OcBindMode bindMode)
     {
         if (BindSocket != null) return;
+
+        // if client, force divide 1
+        if (bindMode == OcBindMode.Client) Divide = 1;
 
         try
         {
