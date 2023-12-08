@@ -1,8 +1,5 @@
-using System;
 using System.Collections;
-using System.IO;
 using System.Text;
-using System.Threading;
 
 namespace OrangeCabinet;
 
@@ -87,7 +84,7 @@ public static class OcLogger
     private static void Out(string name, object? message)
     {
         if (StopLogger && message is not Exception) return;
-        if (Transfer is {Transfer: { }, Raw: true})
+        if (Transfer is {Transfer: not null, Raw: true})
         {
             Transfer.Transfer(message);
             return;
@@ -112,7 +109,7 @@ public static class OcLogger
         builder.Append($"[{context.Name}]");
         builder.Append($"{context.Message}");
         var log = builder.ToString();
-        if (Transfer is {Transfer: { }})
+        if (Transfer is {Transfer: not null})
         {
             Transfer.Transfer(log);
             return;

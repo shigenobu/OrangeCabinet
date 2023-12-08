@@ -1,8 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
         <LangVersion>10</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
         <Description>Async udp server and client library.</Description>
         <Authors>Shigenobu Furuta</Authors>
         <PackageId>OrangeCabinet</PackageId>
@@ -11,8 +13,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/shigenobu/OrangeCabinet.git</RepositoryUrl>
-        <Nullable>enable</Nullable>
-        <Version>0.0.8</Version>
+        <Version>0.0.9</Version>
     </PropertyGroup>
 
     <ItemGroup>
