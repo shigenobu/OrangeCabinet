@@ -7,14 +7,24 @@
 
 ## feature
 
-* Callback for 'Incoming'(received), 'Timeout'(timeout), 'Shutdown'(shutdown).
+OrangeCabinet is __'Asynchronous Programming Model (APM)'__ socket wrapper library,  
+with __'Task-based Asynchronous Pattern (TAP)'__ at callback methods.  
+Otherwise, __APM__ and __TAP__ mixed.  
+Sync methods (Incoming, Timeout and Shutdown) are disallowed for async override.   
+If you want to use 'async',
+Async methods (IncomingAsync, TimeoutAsync and ShutdownAsync) are override with 'UseAsyncCallback = true'.
+
+* Callback is below.
+    * 'Incoming or IncomingAsync' (received)
+    * 'Timeout or TimeoutAsync' (timeout)
+    * 'Shutdown or ShutdownAsync' (shutdown)
 * Can store user value in remote.
 * Check timeout at regular intervals by last receive time.
 * Client bind too, not connect. So, previously known client port.
 
 ## how to use
 
-### callback
+### callback (sync)
 
     public class Callback : OcCallback
     {
@@ -47,7 +57,44 @@
         }
     }
 
-### for server
+### callback (async)
+
+    public class AsyncCallback : OcCallback
+    {
+        private const string Key = "inc";
+
+        public override bool UseAsyncCallback { get; init; } = true;
+
+        public override async Task IncomingAsync(OcRemote remote, byte[] message)
+        {
+            Console.WriteLine($"Received: {Encoding.UTF8.GetString(message)} ({remote})");
+
+            int inc = remote.GetValue<int>(Key);
+            inc++;
+            remote.SetValue(Key, inc);
+
+            await remote.SendAsync($"{inc}");
+            if (inc > 10)
+            {
+                remote.ClearValue(Key);
+                remote.Escape();
+            }
+        }
+
+        public override Task TimeoutAsync(OcRemote remote)
+        {
+            Console.WriteLine($"Timeout: {remote}");
+            return Task.CompletedTask;
+        }
+
+        public override Task ShutdownAsync(OcRemote remote)
+        {
+            Console.WriteLine($"Shutdown: {remote}");
+            return Task.CompletedTask;
+        }
+    }
+
+### for server (ip v4)
 
     public static void Main(string[] args)
     {
@@ -57,13 +104,13 @@
         };
         var server = new OcLocal(serverBinder);
         server.Start();
-        server.SendTo("0", IPEndPoint.Parse("127.0.0.1:18170"));  // Send from server to some endpoint what you hope.
+        server.SendTo("0", new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8710));  // Send from server to some endpoint what you hope.
         server.WaitFor();
         // ...
         server.Shutdown();
     }
 
-### for client
+### for client (ip v4)
 
     public static void Main(string[] args)
     {
@@ -72,6 +119,39 @@
             BindPort = 18710,
         };
         var client = new OcRemote(clientBinder, "127.0.0.1", 8710);
+        for (int j = 0; j < 3; j++)
+        {
+            client.Send($"{j}");
+        }
+    }
+
+### for server (ip v6)
+
+    public static void Main(string[] args)
+    {
+        var serverBinder = new OcBinder(new SampleCallback())
+        {
+            SocketAddressFamily = OcSocketAddressFamily.Ipv6,
+            BindPort = 8710,
+        };
+        var server = new OcLocal(serverBinder);
+        server.Start();
+        server.SendTo("0", new IPEndPoint(IPAddress.Parse("::1"), 8710));  // Send from server to some endpoint what you hope.
+        server.WaitFor();
+        // ...
+        server.Shutdown();
+    }
+
+### for client (ip v6)
+
+    public static void Main(string[] args)
+    {
+        using var clientBinder = new OcBinder(new Callback())
+        {
+            SocketAddressFamily = OcSocketAddressFamily.Ipv6,
+            BindPort = 18710,
+        };
+        var client = new OcRemote(clientBinder, "::1", 8710);
         for (int j = 0; j < 3; j++)
         {
             client.Send($"{j}");

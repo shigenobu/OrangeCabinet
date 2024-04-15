@@ -81,6 +81,11 @@ public class OcRemote
     internal bool Active { get; set; } = true;
 
     /// <summary>
+    ///     Lock.
+    /// </summary>
+    internal OcLock Lock { get; } = new();
+
+    /// <summary>
     ///     Change idle milli seconds.
     /// </summary>
     /// <param name="idleMilliSeconds">idle milli seconds</param>
@@ -113,10 +118,23 @@ public class OcRemote
     ///     If remote is timeout or inactive, not send and throws exception.
     /// </summary>
     /// <param name="message">message</param>
-    /// <exception cref="OcSendException">send error</exception>
-    public void Send(string message)
+    /// <param name="timeout">timeout</param>
+    /// <exception cref="OcRemoteSendException">send error</exception>
+    public void Send(string message, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
     {
-        Send(message.OxToBytes());
+        Send(message.OxToBytes(), timeout);
+    }
+
+    /// <summary>
+    ///     Async send string.
+    ///     If remote is timeout or inactive, not send and throws exception.
+    /// </summary>
+    /// <param name="message">message</param>
+    /// <param name="timeout">timeout</param>
+    /// <exception cref="OcRemoteSendException">send error</exception>
+    public async Task SendAsync(string message, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
+    {
+        await SendAsync(message.OxToBytes(), timeout);
     }
 
     /// <summary>
@@ -124,23 +142,36 @@ public class OcRemote
     ///     If remote is timeout or inactive, not send and throws exception.
     /// </summary>
     /// <param name="message">message</param>
-    /// <exception cref="OcSendException">send error</exception>
-    public void Send(byte[] message)
+    /// <param name="timeout">timeout</param>
+    /// <exception cref="OcRemoteSendException">send error</exception>
+    public void Send(byte[] message, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
+    {
+        SendAsync(message, timeout).ConfigureAwait(false).GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    ///     Async send bytes.
+    ///     If remote is timeout or inactive, not send and throws exception.
+    /// </summary>
+    /// <param name="message">message</param>
+    /// <param name="timeout">timeout</param>
+    /// <exception cref="OcRemoteSendException">send error</exception>
+    public async Task SendAsync(byte[] message, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
     {
         // if escaped, disallow send
-        if (_lifeTimestampMilliseconds <= 0) throw new OcSendException($"Remote({this}) is already escaped");
+        if (_lifeTimestampMilliseconds <= 0) throw new OcRemoteSendException($"Remote({this}) is already escaped");
 
         // if not active, disallow send
-        if (!Active) throw new OcSendException($"Remote({this}) is not active");
+        if (!Active) throw new OcRemoteSendException($"Remote({this}) is not active");
 
         try
         {
-            _binder.SendTo(message, RemoteEndpoint);
+            await _binder.SendToAsync(message, RemoteEndpoint, timeout);
         }
         catch (Exception e)
         {
             OcLogger.Error(e);
-            throw new OcSendException(e);
+            throw new OcRemoteSendException(e);
         }
     }
 
@@ -201,15 +232,15 @@ public class OcRemote
 }
 
 /// <summary>
-///     Send exception.
+///     Remote send exception.
 /// </summary>
-public class OcSendException : Exception
+public class OcRemoteSendException : Exception
 {
     /// <summary>
     ///     Constructor.
     /// </summary>
     /// <param name="e">exception</param>
-    internal OcSendException(Exception e) : base(e.ToString())
+    internal OcRemoteSendException(Exception e) : base(e.ToString())
     {
     }
 
@@ -217,7 +248,7 @@ public class OcSendException : Exception
     ///     Constructor.
     /// </summary>
     /// <param name="message">message</param>
-    internal OcSendException(string message) : base(message)
+    internal OcRemoteSendException(string message) : base(message)
     {
     }
 }

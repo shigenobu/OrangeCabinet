@@ -36,9 +36,26 @@ public class OcLocal
     /// </summary>
     /// <param name="message">message</param>
     /// <param name="remoteEndpoint">remote endpoint</param>
-    public void SendTo(string message, IPEndPoint remoteEndpoint)
+    /// <param name="timeout">timeout</param>
+    /// <exception cref="OcLocalSendException">send error</exception>
+    public void SendTo(string message, IPEndPoint remoteEndpoint, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
     {
-        _binder.SendTo(message.OxToBytes(), remoteEndpoint);
+        SendTo(message.OxToBytes(), remoteEndpoint, timeout);
+    }
+
+    /// <summary>
+    ///     Async send string to remote.
+    ///     Enable to send message for some endpoint directly what you hope.
+    ///     Notice, this method is not checked for remote endpoint state.
+    /// </summary>
+    /// <param name="message">message</param>
+    /// <param name="remoteEndpoint">remote endpoint</param>
+    /// <param name="timeout">timeout</param>
+    /// <exception cref="OcLocalSendException">send error</exception>
+    public async Task SendToAsync(string message, IPEndPoint remoteEndpoint,
+        int timeout = OcBinder.DefaultTimeoutMilliSeconds)
+    {
+        await SendToAsync(message.OxToBytes(), remoteEndpoint, timeout);
     }
 
     /// <summary>
@@ -48,9 +65,34 @@ public class OcLocal
     /// </summary>
     /// <param name="message">message</param>
     /// <param name="remoteEndpoint">remote endpoint</param>
-    public void SendTo(byte[] message, IPEndPoint remoteEndpoint)
+    /// <param name="timeout">timeout</param>
+    /// <exception cref="OcLocalSendException">send error</exception>
+    public void SendTo(byte[] message, IPEndPoint remoteEndpoint, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
     {
-        _binder.SendTo(message, remoteEndpoint);
+        SendToAsync(message, remoteEndpoint, timeout).ConfigureAwait(false).GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    ///     Async send bytes to remote.
+    ///     Enable to send message for some endpoint directly what you hope.
+    ///     Notice, this method is not checked for remote endpoint state.
+    /// </summary>
+    /// <param name="message">message</param>
+    /// <param name="remoteEndpoint">remote endpoint</param>
+    /// <param name="timeout">timeout</param>
+    /// <exception cref="OcLocalSendException">send error</exception>
+    public async Task SendToAsync(byte[] message, IPEndPoint remoteEndpoint,
+        int timeout = OcBinder.DefaultTimeoutMilliSeconds)
+    {
+        try
+        {
+            await _binder.SendToAsync(message, remoteEndpoint, timeout);
+        }
+        catch (Exception e)
+        {
+            OcLogger.Error(e);
+            throw new OcLocalSendException(e);
+        }
     }
 
     /// <summary>
@@ -67,5 +109,19 @@ public class OcLocal
     public void Shutdown()
     {
         _binder.Close();
+    }
+}
+
+/// <summary>
+///     Local send exception.
+/// </summary>
+public class OcLocalSendException : Exception
+{
+    /// <summary>
+    ///     Constructor.
+    /// </summary>
+    /// <param name="e">exception</param>
+    internal OcLocalSendException(Exception e) : base(e.ToString())
+    {
     }
 }

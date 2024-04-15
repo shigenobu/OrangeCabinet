@@ -9,6 +9,11 @@ namespace OrangeCabinet;
 public class OcBinder : IDisposable
 {
     /// <summary>
+    ///     Default timeout milli seconds.
+    /// </summary>
+    internal const int DefaultTimeoutMilliSeconds = 1500;
+
+    /// <summary>
     ///     Default ip v4 host.
     /// </summary>
     private const string DefaultIpv4Host = "0.0.0.0";
@@ -34,6 +39,9 @@ public class OcBinder : IDisposable
     /// <param name="callback">callback</param>
     public OcBinder(OcCallback callback)
     {
+        if (OcCallback.ContainsAsync(callback))
+            throw new OcBinderException(
+                $"Disallow async override at {string.Join(',', OcCallback.SynchronousMethodNames.ToArray())} in {callback.GetType().FullName}, use 'xxxAsync' alternatively.");
         Callback = callback;
     }
 
@@ -140,16 +148,19 @@ public class OcBinder : IDisposable
     }
 
     /// <summary>
-    ///     Send bytes to remote.
+    ///     Async send bytes to remote.
     /// </summary>
     /// <param name="message">message</param>
     /// <param name="remoteEndpoint">remote endpoint</param>
+    /// <param name="timeout">timeout</param>
     /// <exception cref="OcBinderException">bind exception</exception>
-    internal void SendTo(byte[] message, IPEndPoint remoteEndpoint)
+    internal async Task SendToAsync(byte[] message, IPEndPoint remoteEndpoint, int timeout = DefaultTimeoutMilliSeconds)
     {
         if (BindSocket == null)
             throw new OcBinderException($"Not bind on {BindSocket}:{BindPort}");
-        BindSocket.SendTo(message, SocketFlags.None, remoteEndpoint);
+        var t = BindSocket.SendToAsync(message, SocketFlags.None, remoteEndpoint);
+        if (await Task.WhenAny(t, Task.Delay(timeout)) != t)
+            throw new OcBinderException($"Error send to {remoteEndpoint.OxToHostPort()} ({message.Length})");
     }
 
     /// <summary>

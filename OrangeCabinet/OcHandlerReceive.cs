@@ -123,20 +123,32 @@ internal class OcHandlerReceive : OcHandler<OcStateReceive>
             return;
         }
 
+        EndPoint? remoteEndpoint;
+        int received;
         try
         {
             // received
-            EndPoint remoteEndpoint = new IPEndPoint(IPAddress.Any, 0);
-            var received = state!.Socket.EndReceiveFrom(result, ref remoteEndpoint);
+            remoteEndpoint = new IPEndPoint(IPAddress.Any, 0);
+            received = state!.Socket.EndReceiveFrom(result, ref remoteEndpoint);
             if (received <= 0)
             {
                 OcLogger.Debug(() => $"Received wrong size: {received}");
                 return;
             }
+        }
+        catch (Exception e)
+        {
+            OcLogger.Debug(() => e);
+            Failed(state!);
+            return;
+        }
 
-            var remote = _remoteManager.Generate((IPEndPoint) remoteEndpoint);
+        // callback
+        var taskReceive = Task.Run(async () =>
+        {
+            var remote = await _remoteManager.GenerateAsync((IPEndPoint) remoteEndpoint);
             OcLogger.Debug(() => $"Received remote: {remote}, size: {received}");
-            lock (remote)
+            using (await remote.Lock.LockAsync())
             {
                 // if remote is active and not timeout, invoke incoming
                 if (remote.Active && !remote.IsTimeout())
@@ -144,15 +156,20 @@ internal class OcHandlerReceive : OcHandler<OcStateReceive>
                     var message = new byte[received];
                     Buffer.BlockCopy(state.Buffer!, 0, message, 0, message.Length);
                     remote.UpdateTimeout();
-                    _callback.Incoming(remote, message);
+                    if (_callback.UseAsyncCallback)
+                        await _callback.IncomingAsync(remote, message);
+                    else
+                        // ReSharper disable once MethodHasAsyncOverload
+                        _callback.Incoming(remote, message);
                 }
             }
-        }
-        catch (Exception e)
+        });
+        taskReceive.ContinueWith(comp =>
         {
-            OcLogger.Debug(() => e);
-            Failed(state!);
-        }
+            if (comp.Exception is not { } e) return;
+            OcLogger.Debug(() => e.InnerExceptions);
+            Failed(state);
+        });
     }
 
     /// <summary>

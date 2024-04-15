@@ -21,7 +21,7 @@ public class OcRemoteManager
     /// <summary>
     ///     Remote locks.
     /// </summary>
-    private readonly List<object> _remoteLocks;
+    private readonly List<OcLock> _remoteLocks;
 
     /// <summary>
     ///     Remotes.
@@ -52,8 +52,8 @@ public class OcRemoteManager
         _binder = binder;
         _divide = binder.Divide;
 
-        _remoteLocks = new List<object>(_divide);
-        for (var i = 0; i < _divide; i++) _remoteLocks.Add(new object());
+        _remoteLocks = new List<OcLock>(_divide);
+        for (var i = 0; i < _divide; i++) _remoteLocks.Add(new OcLock());
 
         _remotes = new List<ConcurrentDictionary<string, OcRemote>>(_divide);
         for (var i = 0; i < _divide; i++) _remotes.Add(new ConcurrentDictionary<string, OcRemote>());
@@ -86,16 +86,20 @@ public class OcRemoteManager
                 if (taskNo >= _divide) taskNo = 0;
 
                 // timeout
-                lock (_remoteLocks[taskNo])
+                using (await _remoteLocks[taskNo].LockAsync())
                 {
                     foreach (var pair in _remotes[taskNo])
-                        lock (pair.Value)
+                        using (await pair.Value.Lock.LockAsync())
                         {
                             // if already timeout and active, invoke timeout.
                             if (pair.Value.Active && pair.Value.IsTimeout())
                             {
                                 pair.Value.Active = false;
-                                _binder.Callback.Timeout(pair.Value);
+                                if (_binder.Callback.UseAsyncCallback)
+                                    await _binder.Callback.TimeoutAsync(pair.Value);
+                                else
+                                    // ReSharper disable once MethodHasAsyncOverload
+                                    _binder.Callback.Timeout(pair.Value);
 
                                 if (_remotes[taskNo].TryRemove(pair))
                                 {
@@ -124,27 +128,34 @@ public class OcRemoteManager
 
         // shutdown all sessions
         OcLogger.Info("Closing remotes at shutdown");
-        for (var i = 0; i < _divide; i++)
-            lock (_remoteLocks[i])
-            {
-                foreach (var pair in _remotes[i])
-                    lock (pair.Value)
-                    {
-                        // if active, invoke shutdown.
-                        if (pair.Value.Active)
+        Task.Run(async () =>
+        {
+            for (var i = 0; i < _divide; i++)
+                using (await _remoteLocks[i].LockAsync())
+                {
+                    foreach (var pair in _remotes[i])
+                        using (await pair.Value.Lock.LockAsync())
                         {
-                            pair.Value.Active = false;
-                            _binder.Callback.Shutdown(pair.Value);
-
-                            if (_remotes[i].TryRemove(pair))
+                            // if active, invoke shutdown.
+                            if (pair.Value.Active)
                             {
-                                // decrement
-                                Interlocked.Decrement(ref _remoteCount);
-                                OcLogger.Debug(() => $"By shutdown, removed remote: {pair.Value}");
+                                pair.Value.Active = false;
+                                if (_binder.Callback.UseAsyncCallback)
+                                    await _binder.Callback.ShutdownAsync(pair.Value);
+                                else
+                                    // ReSharper disable once MethodHasAsyncOverload
+                                    _binder.Callback.Shutdown(pair.Value);
+
+                                if (_remotes[i].TryRemove(pair))
+                                {
+                                    // decrement
+                                    Interlocked.Decrement(ref _remoteCount);
+                                    OcLogger.Debug(() => $"By shutdown, removed remote: {pair.Value}");
+                                }
                             }
                         }
-                    }
-            }
+                }
+        });
     }
 
     /// <summary>
@@ -170,17 +181,17 @@ public class OcRemoteManager
     }
 
     /// <summary>
-    ///     Generate.
+    ///     Async generate.
     /// </summary>
     /// <param name="remoteEndpoint">remote endpoint</param>
     /// <returns>remote</returns>
-    internal OcRemote Generate(IPEndPoint remoteEndpoint)
+    internal async Task<OcRemote> GenerateAsync(IPEndPoint remoteEndpoint)
     {
         var hostPort = remoteEndpoint.OxToHostPort();
         var mod = GetMod(hostPort);
 
         OcRemote? remote;
-        lock (_remoteLocks[mod])
+        using (await _remoteLocks[mod].LockAsync())
         {
             if (!TryGet(hostPort, out remote))
             {
