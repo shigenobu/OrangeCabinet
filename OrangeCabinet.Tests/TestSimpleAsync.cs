@@ -45,7 +45,7 @@ namespace OrangeCabinet.Tests
 
             // ...
             Thread.Sleep(1000);
-            server.SendTo("hello from server", new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8710));
+            await server.SendToAsync("hello from server", new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8710));
             server.Shutdown();
             
             OcLogger.Close();
