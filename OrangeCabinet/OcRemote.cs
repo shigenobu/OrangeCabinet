@@ -135,10 +135,7 @@ public class OcRemote
 
         try
         {
-            lock (this)
-            {
-                _binder.SendTo(message, RemoteEndpoint);
-            }
+            _binder.SendTo(message, RemoteEndpoint);
         }
         catch (Exception e)
         {

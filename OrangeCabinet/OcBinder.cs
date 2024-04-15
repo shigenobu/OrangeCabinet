@@ -9,6 +9,16 @@ namespace OrangeCabinet;
 public class OcBinder : IDisposable
 {
     /// <summary>
+    ///     Default ip v4 host.
+    /// </summary>
+    private const string DefaultIpv4Host = "0.0.0.0";
+
+    /// <summary>
+    ///     Default ip v6 host.
+    /// </summary>
+    private const string DefaultIpv6Host = "::";
+
+    /// <summary>
     ///     Receive handler.
     /// </summary>
     private OcHandlerReceive? _handlerReceive;
@@ -33,9 +43,14 @@ public class OcBinder : IDisposable
     internal OcCallback Callback { get; }
 
     /// <summary>
+    ///     Address family, default ipv4.
+    /// </summary>
+    public OcSocketAddressFamily SocketAddressFamily { get; init; } = OcSocketAddressFamily.Ipv4;
+
+    /// <summary>
     ///     Bind host, default 0.0.0.0.
     /// </summary>
-    public string BindHost { get; init; } = "0.0.0.0";
+    public string BindHost { get; set; } = DefaultIpv4Host;
 
     /// <summary>
     ///     Bind port, default random between 18000-28999.
@@ -80,9 +95,25 @@ public class OcBinder : IDisposable
 
         try
         {
+            // check v6
+            if (SocketAddressFamily == OcSocketAddressFamily.Ipv6 &&
+                IPAddress.Parse(BindHost).AddressFamily == AddressFamily.InterNetwork &&
+                BindHost.Equals(DefaultIpv4Host))
+            {
+                BindHost = DefaultIpv6Host;
+                OcLogger.Info($"Change host from '{DefaultIpv4Host}' to '{DefaultIpv6Host}', so ipv6 is adapted");
+            }
+
             // init
-            BindSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            BindSocket = new Socket(OcSocketAddressFamilyResolver.Resolve(SocketAddressFamily), SocketType.Dgram,
+                ProtocolType.Udp);
             BindSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            if (SocketAddressFamily == OcSocketAddressFamily.Ipv6)
+            {
+                BindSocket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
+                OcLogger.Info("Ipv4 socket is treated as ipv6 socket");
+            }
+
             BindSocket.Bind(new IPEndPoint(IPAddress.Parse(BindHost), BindPort));
             BindSocket.Blocking = false;
 

@@ -60,7 +60,7 @@ internal static class OcUtils
         }
         catch (Exception e)
         {
-            OcLogger.Debug(() => e);
+            // ignored
         }
 
         return default;

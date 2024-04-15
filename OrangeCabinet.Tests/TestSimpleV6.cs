@@ -6,9 +6,9 @@ using Xunit.Abstractions;
 
 namespace OrangeCabinet.Tests
 {
-    public class TestSimple
+    public class TestSimpleV6
     {
-        public TestSimple(ITestOutputHelper testOutputHelper)
+        public TestSimpleV6(ITestOutputHelper testOutputHelper)
         {
             OcDate.AddSeconds = 60 * 60 * 9;
             // OcLogger.Writer = new StreamWriter(new FileStream("Test.log", FileMode.Append));
@@ -23,8 +23,9 @@ namespace OrangeCabinet.Tests
         [Fact]
         public void Test()
         {
-            var serverBinder = new OcBinder(new SampleCallback())
+            var serverBinder = new OcBinder(new SampleV6Callback())
             {
+                SocketAddressFamily = OcSocketAddressFamily.Ipv6,
                 BindPort = 8710,
             };
             var server = new OcLocal(serverBinder);
@@ -32,11 +33,12 @@ namespace OrangeCabinet.Tests
             // server.WaitFor();
             
             // -----
-            using var clientBinder = new OcBinder(new SampleCallback())
+            using var clientBinder = new OcBinder(new SampleV6Callback())
             {
+                SocketAddressFamily = OcSocketAddressFamily.Ipv6,
                 BindPort = 18710,
             };
-            var client = new OcRemote(clientBinder, "127.0.0.1", 8710);
+            var client = new OcRemote(clientBinder, "::1", 8710);
             for (int j = 0; j < 3; j++)
             {
                 client.Send($"{j}".OxToBytes());
@@ -45,14 +47,14 @@ namespace OrangeCabinet.Tests
 
             // ...
             Thread.Sleep(1000);
-            server.SendTo("hello from server", new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8710));
+            server.SendTo("hello from server", new IPEndPoint(IPAddress.Parse("::1"), 8710));
             server.Shutdown();
             
             OcLogger.Close();
         }
     }
     
-    public class SampleCallback : OcCallback
+    public class SampleV6Callback : OcCallback
     {
         private const string Key = "inc";
         
