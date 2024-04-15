@@ -18,8 +18,8 @@ public static class OcDate
     internal static string Now()
     {
         var dateTimeOffset = DateTimeOffset.UtcNow;
-        dateTimeOffset = dateTimeOffset.AddSeconds(AddSeconds);
-        return dateTimeOffset.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        dateTimeOffset = dateTimeOffset.ToOffset(TimeSpan.FromSeconds(AddSeconds));
+        return dateTimeOffset.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz");
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ public static class OcDate
     internal static long NowTimestampMilliSeconds()
     {
         var dateTimeOffset = DateTimeOffset.UtcNow;
-        dateTimeOffset = dateTimeOffset.AddSeconds(AddSeconds);
+        dateTimeOffset = dateTimeOffset.ToOffset(TimeSpan.FromSeconds(AddSeconds));
         return dateTimeOffset.ToUnixTimeMilliseconds();
     }
 }
