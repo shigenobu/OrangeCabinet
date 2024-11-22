@@ -9,7 +9,7 @@ namespace OrangeCabinet;
 public class OcBinder : IDisposable
 {
     /// <summary>
-    ///     Default timeout milli seconds.
+    ///     Default timeout milliseconds.
     /// </summary>
     internal const int DefaultTimeoutMilliSeconds = 1500;
 

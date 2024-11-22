@@ -42,6 +42,7 @@ public abstract class OcCallback
     /// </summary>
     /// <param name="remote">received remote</param>
     /// <param name="message">message</param>
+    [Obsolete("Use async methods instead with 'UseAsyncCallback' setting to 'true'.")]
     public virtual void Incoming(OcRemote remote, byte[] message)
     {
     }
@@ -61,6 +62,7 @@ public abstract class OcCallback
     ///     Timeout.
     /// </summary>
     /// <param name="remote">be timeout remote</param>
+    [Obsolete("Use async methods instead with 'UseAsyncCallback' setting to 'true'.")]
     public virtual void Timeout(OcRemote remote)
     {
     }
@@ -79,6 +81,7 @@ public abstract class OcCallback
     ///     Shutdown.
     /// </summary>
     /// <param name="remote">be shutdown remote</param>
+    [Obsolete("Use async methods instead with 'UseAsyncCallback' setting to 'true'.")]
     public virtual void Shutdown(OcRemote remote)
     {
     }

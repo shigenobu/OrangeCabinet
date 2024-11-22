@@ -23,7 +23,7 @@ public class OcRemote
     private int _idleMilliSeconds = 10000;
 
     /// <summary>
-    ///     Life timestamp milli seconds.
+    ///     Life timestamp milliseconds.
     /// </summary>
     private long _lifeTimestampMilliseconds;
 
@@ -86,7 +86,7 @@ public class OcRemote
     internal OcLock Lock { get; } = new();
 
     /// <summary>
-    ///     Change idle milli seconds.
+    ///     Change idle milliseconds.
     /// </summary>
     /// <param name="idleMilliSeconds">idle milli seconds</param>
     public void ChangeIdleMilliSeconds(int idleMilliSeconds)

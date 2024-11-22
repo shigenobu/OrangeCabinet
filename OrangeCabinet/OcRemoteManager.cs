@@ -169,11 +169,11 @@ public class OcRemoteManager
     }
 
     /// <summary>
-    ///     Try get remote.
+    ///     Try to get remote.
     /// </summary>
     /// <param name="hostPort">host and port string</param>
     /// <param name="remote">remote</param>
-    /// <returns>if get, return true</returns>
+    /// <returns>if to get, return true</returns>
     private bool TryGet(string hostPort, out OcRemote? remote)
     {
         var mod = GetMod(hostPort);

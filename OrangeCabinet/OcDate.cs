@@ -23,9 +23,9 @@ public static class OcDate
     }
 
     /// <summary>
-    ///     Not timestamp milli seconds.
+    ///     Not timestamp milliseconds.
     /// </summary>
-    /// <returns>milli seconds</returns>
+    /// <returns>milliseconds</returns>
     internal static long NowTimestampMilliSeconds()
     {
         var dateTimeOffset = DateTimeOffset.UtcNow;

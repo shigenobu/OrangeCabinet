@@ -84,7 +84,7 @@ internal class OcHandlerReceive : OcHandler<OcStateReceive>
                     };
 
                     // receive
-                    // 'BeginReceiveFrom' and 'EndReceiveFrom' must be use at same time.
+                    // 'BeginReceiveFrom' and 'EndReceiveFrom' must be used at same time.
                     EndPoint remoteEndpoint = new IPEndPoint(IPAddress.Any, 0);
                     state.Socket.BeginReceiveFrom(
                         state.Buffer!,

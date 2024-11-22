@@ -58,7 +58,7 @@ internal static class OcUtils
         {
             return func.Invoke();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // ignored
         }
