@@ -120,6 +120,7 @@ public class OcRemote
     /// <param name="message">message</param>
     /// <param name="timeout">timeout</param>
     /// <exception cref="OcRemoteSendException">send error</exception>
+    [Obsolete("Use async methods instead.")]
     public void Send(string message, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
     {
         Send(message.OxToBytes(), timeout);
@@ -144,6 +145,7 @@ public class OcRemote
     /// <param name="message">message</param>
     /// <param name="timeout">timeout</param>
     /// <exception cref="OcRemoteSendException">send error</exception>
+    [Obsolete("Use async methods instead.")]
     public void Send(byte[] message, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
     {
         SendAsync(message, timeout).ConfigureAwait(false).GetAwaiter().GetResult();

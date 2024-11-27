@@ -38,6 +38,7 @@ public class OcLocal
     /// <param name="remoteEndpoint">remote endpoint</param>
     /// <param name="timeout">timeout</param>
     /// <exception cref="OcLocalSendException">send error</exception>
+    [Obsolete("Use async methods instead.")]
     public void SendTo(string message, IPEndPoint remoteEndpoint, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
     {
         SendTo(message.OxToBytes(), remoteEndpoint, timeout);
@@ -67,6 +68,7 @@ public class OcLocal
     /// <param name="remoteEndpoint">remote endpoint</param>
     /// <param name="timeout">timeout</param>
     /// <exception cref="OcLocalSendException">send error</exception>
+    [Obsolete("Use async methods instead.")]
     public void SendTo(byte[] message, IPEndPoint remoteEndpoint, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
     {
         SendToAsync(message, remoteEndpoint, timeout).ConfigureAwait(false).GetAwaiter().GetResult();
