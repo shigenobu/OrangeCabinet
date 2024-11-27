@@ -22,6 +22,11 @@ Async methods (IncomingAsync, TimeoutAsync and ShutdownAsync) are override with 
 * Check timeout at regular intervals by last receive time.
 * Client bind too, not connect. So, previously known client port.
 
+__(notice)__  
+
+Synchronous methods are now obsolete.  
+Please change to asynchronous methods.  
+
 ## how to use
 
 ### callback (sync)
