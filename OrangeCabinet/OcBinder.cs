@@ -39,9 +39,6 @@ public class OcBinder : IDisposable
     /// <param name="callback">callback</param>
     public OcBinder(OcCallback callback)
     {
-        if (OcCallback.ContainsAsync(callback))
-            throw new OcBinderException(
-                $"Disallow async override at {string.Join(',', OcCallback.SynchronousMethodNames.ToArray())} in {callback.GetType().FullName}, use 'xxxAsync' alternatively.");
         Callback = callback;
     }
 

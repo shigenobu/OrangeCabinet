@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\OrangeCabinet\OrangeCabinet.csproj" />
+        <ProjectReference Include="..\OrangeCabinet\OrangeCabinet.csproj"/>
     </ItemGroup>
 
 </Project>

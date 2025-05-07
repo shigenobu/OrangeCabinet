@@ -25,7 +25,7 @@ public enum OcSocketAddressFamily
 internal static class OcSocketAddressFamilyResolver
 {
     /// <summary>
-    ///     Resolve for 'AddressFamily' .
+    ///     Resolve for 'AddressFamily'.
     /// </summary>
     /// <param name="socketAddressFamily">address family</param>
     /// <returns>AddressFamily</returns>

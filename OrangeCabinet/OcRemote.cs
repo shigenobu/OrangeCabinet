@@ -114,19 +114,6 @@ public class OcRemote
     }
 
     /// <summary>
-    ///     Send string.
-    ///     If remote is timeout or inactive, not send and throws exception.
-    /// </summary>
-    /// <param name="message">message</param>
-    /// <param name="timeout">timeout</param>
-    /// <exception cref="OcRemoteSendException">send error</exception>
-    [Obsolete("Use async methods instead.")]
-    public void Send(string message, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
-    {
-        Send(message.OxToBytes(), timeout);
-    }
-
-    /// <summary>
     ///     Async send string.
     ///     If remote is timeout or inactive, not send and throws exception.
     /// </summary>
@@ -136,19 +123,6 @@ public class OcRemote
     public async Task SendAsync(string message, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
     {
         await SendAsync(message.OxToBytes(), timeout);
-    }
-
-    /// <summary>
-    ///     Send bytes.
-    ///     If remote is timeout or inactive, not send and throws exception.
-    /// </summary>
-    /// <param name="message">message</param>
-    /// <param name="timeout">timeout</param>
-    /// <exception cref="OcRemoteSendException">send error</exception>
-    [Obsolete("Use async methods instead.")]
-    public void Send(byte[] message, int timeout = OcBinder.DefaultTimeoutMilliSeconds)
-    {
-        SendAsync(message, timeout).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -208,8 +182,8 @@ public class OcRemote
     public T? GetValue<T>(string name)
     {
         if (_values == null) return default;
-        if (!_values.ContainsKey(name)) return default;
-        return (T?) _values[name];
+        if (!_values.TryGetValue(name, out var value)) return default;
+        return (T?) value;
     }
 
     /// <summary>

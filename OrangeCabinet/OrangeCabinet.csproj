@@ -13,7 +13,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/shigenobu/OrangeCabinet.git</RepositoryUrl>
-        <Version>0.2.2</Version>
+        <Version>0.3.0</Version>
     </PropertyGroup>
 
     <ItemGroup>

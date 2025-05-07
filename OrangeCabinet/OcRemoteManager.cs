@@ -95,11 +95,7 @@ public class OcRemoteManager
                             if (pair.Value.Active && pair.Value.IsTimeout())
                             {
                                 pair.Value.Active = false;
-                                if (_binder.Callback.UseAsyncCallback)
-                                    await _binder.Callback.TimeoutAsync(pair.Value);
-                                else
-                                    // ReSharper disable once MethodHasAsyncOverload
-                                    _binder.Callback.Timeout(pair.Value);
+                                await _binder.Callback.TimeoutAsync(pair.Value);
 
                                 if (_remotes[taskNo].TryRemove(pair))
                                 {
@@ -140,11 +136,7 @@ public class OcRemoteManager
                             if (pair.Value.Active)
                             {
                                 pair.Value.Active = false;
-                                if (_binder.Callback.UseAsyncCallback)
-                                    await _binder.Callback.ShutdownAsync(pair.Value);
-                                else
-                                    // ReSharper disable once MethodHasAsyncOverload
-                                    _binder.Callback.Shutdown(pair.Value);
+                                await _binder.Callback.ShutdownAsync(pair.Value);
 
                                 if (_remotes[i].TryRemove(pair))
                                 {

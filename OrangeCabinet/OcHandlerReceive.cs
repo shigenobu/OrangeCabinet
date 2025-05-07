@@ -156,11 +156,7 @@ internal class OcHandlerReceive : OcHandler<OcStateReceive>
                     var message = new byte[received];
                     Buffer.BlockCopy(state.Buffer!, 0, message, 0, message.Length);
                     remote.UpdateTimeout();
-                    if (_callback.UseAsyncCallback)
-                        await _callback.IncomingAsync(remote, message);
-                    else
-                        // ReSharper disable once MethodHasAsyncOverload
-                        _callback.Incoming(remote, message);
+                    await _callback.IncomingAsync(remote, message);
                 }
             }
         });

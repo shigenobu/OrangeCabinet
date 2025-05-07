@@ -9,75 +9,32 @@
 
 OrangeCabinet is __'Asynchronous Programming Model (APM)'__ socket wrapper library,  
 with __'Task-based Asynchronous Pattern (TAP)'__ at callback methods.  
-Otherwise, __APM__ and __TAP__ mixed.  
-Sync methods (Incoming, Timeout and Shutdown) are disallowed for async override.   
-If you want to use 'async',
-Async methods (IncomingAsync, TimeoutAsync and ShutdownAsync) are override with 'UseAsyncCallback = true'.
+Otherwise, __APM__ and __TAP__ mixed.
 
 * Callback is below.
-    * 'Incoming or IncomingAsync' (received)
-    * 'Timeout or TimeoutAsync' (timeout)
-    * 'Shutdown or ShutdownAsync' (shutdown)
+    * 'IncomingAsync' (received)
+    * 'TimeoutAsync' (timeout)
+    * 'ShutdownAsync' (shutdown)
 * Can store user value in remote.
 * Check timeout at regular intervals by last receive time.
 * Client bind too, not connect. So, previously known client port.
 
-__(notice)__  
-
-Synchronous methods are now obsolete.  
-Please change to asynchronous methods.  
-
 ## how to use
 
-### callback (sync)
+### callback
 
     public class Callback : OcCallback
     {
         private const string Key = "inc";
-        
-        public override void Incoming(OcRemote remote, byte[] message)
-        {
-            Console.WriteLine($"Received: {Encoding.UTF8.GetString(message)} ({remote})");
-            
-            int inc = remote.GetValue<int>(Key);
-            inc++;
-            remote.SetValue(Key, inc);
-            
-            remote.Send($"{inc}");
-            if (inc > 10)
-            {
-                remote.ClearValue(Key);
-                remote.Escape();
-            }
-        }
-
-        public override void Timeout(OcRemote remote)
-        {
-            Console.WriteLine($"Timeout: {remote}");
-        }
-
-        public override void Shutdown(OcRemote remote)
-        {
-            Console.WriteLine($"Shutdown: {remote}");
-        }
-    }
-
-### callback (async)
-
-    public class AsyncCallback : OcCallback
-    {
-        private const string Key = "inc";
-
-        public override bool UseAsyncCallback { get; init; } = true;
 
         public override async Task IncomingAsync(OcRemote remote, byte[] message)
         {
             Console.WriteLine($"Received: {Encoding.UTF8.GetString(message)} ({remote})");
-
-            int inc = remote.GetValue<int>(Key);
+    
+            var inc = remote.GetValue<int>(Key);
             inc++;
             remote.SetValue(Key, inc);
-
+    
             await remote.SendAsync($"{inc}");
             if (inc > 10)
             {
@@ -101,7 +58,7 @@ Please change to asynchronous methods.
 
 ### for server (ip v4)
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var serverBinder = new OcBinder(new SampleCallback())
         {
@@ -109,7 +66,7 @@ Please change to asynchronous methods.
         };
         var server = new OcLocal(serverBinder);
         server.Start();
-        server.SendTo("0", new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8710));  // Send from server to some endpoint what you hope.
+        await server.SendToAsync("0", new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8710));  // Send from server to some endpoint what you hope.
         server.WaitFor();
         // ...
         server.Shutdown();
@@ -117,7 +74,7 @@ Please change to asynchronous methods.
 
 ### for client (ip v4)
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         using var clientBinder = new OcBinder(new Callback())
         {
@@ -126,13 +83,13 @@ Please change to asynchronous methods.
         var client = new OcRemote(clientBinder, "127.0.0.1", 8710);
         for (int j = 0; j < 3; j++)
         {
-            client.Send($"{j}");
+            await client.SendAsync($"{j}");
         }
     }
 
 ### for server (ip v6)
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var serverBinder = new OcBinder(new SampleCallback())
         {
@@ -141,7 +98,7 @@ Please change to asynchronous methods.
         };
         var server = new OcLocal(serverBinder);
         server.Start();
-        server.SendTo("0", new IPEndPoint(IPAddress.Parse("::1"), 8710));  // Send from server to some endpoint what you hope.
+        await server.SendToAsync("0", new IPEndPoint(IPAddress.Parse("::1"), 8710));  // Send from server to some endpoint what you hope.
         server.WaitFor();
         // ...
         server.Shutdown();
@@ -149,7 +106,7 @@ Please change to asynchronous methods.
 
 ### for client (ip v6)
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         using var clientBinder = new OcBinder(new Callback())
         {
@@ -159,6 +116,6 @@ Please change to asynchronous methods.
         var client = new OcRemote(clientBinder, "::1", 8710);
         for (int j = 0; j < 3; j++)
         {
-            client.Send($"{j}");
+            await client.SendAsync($"{j}");
         }
     }

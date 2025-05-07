@@ -14,7 +14,7 @@ internal abstract class OcHandler<T> where T : OcState
     /// <returns>if cast is success, return true</returns>
     protected bool GetState(IAsyncResult result, out T? state)
     {
-        state = default;
+        state = null;
         if (result.AsyncState != null) state = (T) result.AsyncState;
         return state != null;
     }
